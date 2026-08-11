@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="padding_default">16dp</dimen>
+    <dimen name="padding_large">20dp</dimen>
+    <dimen name="margin_between_buttons">8dp</dimen>
+    <dimen name="button_height">0dp</dimen> <!-- будет использоваться с weight -->
+    <dimen name="icon_size">24dp</dimen>
+    <dimen name="text_size_button">22sp</dimen>
+    <dimen name="text_size_settings_title">20sp</dimen>
+    <dimen name="text_size_settings_item">16sp</dimen>
+    <dimen name="settings_item_padding">16dp</dimen>
+    <dimen name="switch_padding">8dp</dimen>
+</resources>
