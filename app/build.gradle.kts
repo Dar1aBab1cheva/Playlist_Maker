@@ -1,13 +1,20 @@
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.pm.android.app)
+    alias(libs.plugins.pm.kotlin.android)
 }
 
 android {
     namespace = "com.example.playlistmaker"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId = "com.example.playlistmaker"
+        minSdk = 29
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     defaultConfig {
@@ -41,8 +48,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("com.google.android.material:material:1.12.0")
 }
