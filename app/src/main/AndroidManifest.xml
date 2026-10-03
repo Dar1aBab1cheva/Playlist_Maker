@@ -13,17 +13,17 @@
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingsActivity" />
-        <activity android:name=".SearchActivity" />
-        <activity android:name=".MediaActivity" />
-        <activity android:name=".PlaylistActivity" />
+        <activity android:name=".ui.SettingsActivity" />
+        <activity android:name=".ui.MediaActivity" />
+        <activity android:name=".ui.SearchActivity" />
+        <activity android:name=".ui.PlaylistActivity" />
 
     </application>
 
