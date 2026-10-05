@@ -1,4 +1,4 @@
-# IDE files — игнорируем всю папку .idea целиком
+# IDE files
 .idea/
 
 # Gradle
