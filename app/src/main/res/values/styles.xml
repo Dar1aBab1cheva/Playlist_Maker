@@ -4,13 +4,14 @@
     <!-- Наследуемся от UnelevatedButton, чтобы убрать тень, как в макете -->
     <style name="MainButtonStyle" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">0dp</item> <!-- Высота задается через weight в разметке -->
+        <item name="android:layout_height">0dp</item>
         <item name="android:backgroundTint">@color/white</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:textSize">@dimen/button_text_size</item>
         <item name="android:textAllCaps">false</item>
         <item name="cornerRadius">@dimen/card_corner_radius</item>
         <item name="android:fontFamily">@font/ys_display_medium</item>
+        <item name="android:textColorHint">@color/black</item>
     </style>
 
     <!-- Стиль для текста пунктов на экране Настроек -->
