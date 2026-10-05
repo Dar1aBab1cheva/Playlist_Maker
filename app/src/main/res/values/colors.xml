@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Основной брендовый цвет (синий) -->
     <color name="primary">#3772E7</color>
+    <color name="primary_variant">#3772E7</color> <!-- Можно сделать чуть темнее для статус-бара -->
+
+    <!-- Цвета для светлой темы (по умолчанию) -->
+    <color name="background_light">#FFFFFF</color>
+    <color name="surface_light">#FFFFFF</color>
+    <color name="text_primary_light">#1A1B22</color>
+    <color name="text_secondary_light">#AEAFB4</color>
+
+    <!-- Цвета для темной темы -->
+    <color name="background_dark">#1A1B22</color>
+    <color name="surface_dark">#1A1B22</color>
+    <color name="text_primary_dark">#FFFFFF</color>
+    <color name="text_secondary_dark">#AEAFB4</color>
+
+    <!-- Базовые цвета -->
     <color name="white">#FFFFFF</color>
     <color name="black">#1A1B22</color>
     <color name="gray">#AEAFB4</color>
     <color name="light_gray">#E6E8EB</color>
-    <color name="background_dark">#1A1B22</color>
-    <color name="surface_dark">#3772E7</color>
-    <color name="text_primary_dark">#FFFFFF</color>
-    <color name="text_secondary_dark">#AEAFB4</color>
 </resources>

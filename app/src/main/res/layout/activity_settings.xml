@@ -5,21 +5,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white">
+    android:background="?attr/colorOnPrimary"> <!-- Используем атрибут темы для фона -->
 
+    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:title="@string/settings_title"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:titleTextColor="@color/black" />
+        app:titleTextColor="?attr/colorPrimary" />
 
+    <!-- Список настроек -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Темная тема -->
         <RelativeLayout
             android:id="@+id/item_dark_theme"
             android:layout_width="match_parent"
@@ -31,15 +34,12 @@
             android:background="?attr/selectableItemBackground">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/SettingsItemTextStyle"
                 android:layout_centerVertical="true"
                 android:layout_toStartOf="@id/switch_dark_theme"
                 android:layout_alignParentStart="true"
                 android:layout_marginEnd="@dimen/margin_medium"
-                android:text="@string/setting_dark_theme"
-                android:textColor="@color/black"
-                android:textSize="@dimen/button_text_size" />
+                android:text="@string/setting_dark_theme" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_dark_theme"
@@ -49,6 +49,7 @@
                 android:layout_centerVertical="true" />
         </RelativeLayout>
 
+        <!-- Поделиться -->
         <LinearLayout
             android:id="@+id/item_share"
             android:layout_width="match_parent"
@@ -62,12 +63,8 @@
             android:background="?attr/selectableItemBackground">
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/setting_share"
-                android:textColor="@color/black"
-                android:textSize="@dimen/button_text_size" />
+                style="@style/SettingsItemTextStyle"
+                android:text="@string/setting_share" />
 
             <ImageView
                 android:layout_width="@dimen/icon_size"
@@ -77,6 +74,7 @@
                 app:tint="@color/gray" />
         </LinearLayout>
 
+        <!-- Поддержка -->
         <LinearLayout
             android:id="@+id/item_support"
             android:layout_width="match_parent"
@@ -90,12 +88,8 @@
             android:background="?attr/selectableItemBackground">
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/setting_support"
-                android:textColor="@color/black"
-                android:textSize="@dimen/button_text_size" />
+                style="@style/SettingsItemTextStyle"
+                android:text="@string/setting_support" />
 
             <ImageView
                 android:layout_width="@dimen/icon_size"
@@ -105,6 +99,7 @@
                 app:tint="@color/gray" />
         </LinearLayout>
 
+        <!-- Соглашение -->
         <LinearLayout
             android:id="@+id/item_agreement"
             android:layout_width="match_parent"
@@ -118,12 +113,8 @@
             android:background="?attr/selectableItemBackground">
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/setting_agreement"
-                android:textColor="@color/black"
-                android:textSize="@dimen/button_text_size" />
+                style="@style/SettingsItemTextStyle"
+                android:text="@string/setting_agreement" />
 
             <ImageView
                 android:layout_width="@dimen/icon_size"
