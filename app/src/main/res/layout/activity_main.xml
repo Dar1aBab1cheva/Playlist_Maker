@@ -5,19 +5,21 @@
     android:id="@+id/main_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorPrimary">
+    android:background="@color/primary">
 
-    <!-- Заголовок -->
     <TextView
         android:id="@+id/tv_title"
-        style="@style/MainTitleTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_medium"
         android:layout_marginTop="@dimen/margin_large"
         android:text="@string/main_title"
+        android:textColor="@color/white"
+        android:textSize="@dimen/title_text_size"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Контейнер для кнопок -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -29,15 +31,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_title">
 
-        <!-- Кнопка Поиск -->
         <androidx.cardview.widget.CardView
             android:id="@+id/btn_search"
-            style="@style/MainButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_marginBottom="@dimen/margin_medium"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?attr/selectableItemBackground">
+            android:foreground="?attr/selectableItemBackground"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardBackgroundColor="@color/white"
+            app:cardElevation="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -58,20 +63,22 @@
                     android:layout_marginStart="@dimen/margin_small"
                     android:text="@string/btn_search"
                     android:textColor="@color/black"
-                    android:fontFamily="@font/ys_display_medium"
                     android:textSize="@dimen/button_text_size" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Кнопка Медиатека -->
         <androidx.cardview.widget.CardView
             android:id="@+id/btn_media"
-            style="@style/MainButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_marginBottom="@dimen/margin_medium"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?attr/selectableItemBackground">
+            android:foreground="?attr/selectableItemBackground"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardBackgroundColor="@color/white"
+            app:cardElevation="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -92,19 +99,21 @@
                     android:layout_marginStart="@dimen/margin_small"
                     android:text="@string/btn_media"
                     android:textColor="@color/black"
-                    android:fontFamily="@font/ys_display_medium"
                     android:textSize="@dimen/button_text_size" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Кнопка Настройки -->
         <androidx.cardview.widget.CardView
             android:id="@+id/btn_settings"
-            style="@style/MainButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?attr/selectableItemBackground">
+            android:foreground="?attr/selectableItemBackground"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardBackgroundColor="@color/white"
+            app:cardElevation="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -125,7 +134,6 @@
                     android:layout_marginStart="@dimen/margin_small"
                     android:text="@string/btn_settings"
                     android:textColor="@color/black"
-                    android:fontFamily="@font/ys_display_medium"
                     android:textSize="@dimen/button_text_size" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>

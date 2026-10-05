@@ -1,52 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/colorOnPrimary">
+    android:gravity="center"
+    android:background="@color/white">
 
-    <!-- Toolbar с кнопкой назад -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:title="@string/search_title"
-        app:navigationIcon="@drawable/ic_arrow_back"
-        app:titleTextColor="?attr/colorPrimary" />
-
-    <!-- Контейнер для поля ввода и кнопки очистки -->
-    <FrameLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_medium">
+        android:text="Экран поиска"
+        android:textSize="24sp"
+        android:textColor="@color/black" />
 
-        <!-- Поле ввода -->
-        <EditText
-            android:id="@+id/et_search"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/search_hint"
-            android:maxLines="1"
-            android:inputType="text"
-            android:background="@color/light_gray"
-            android:padding="@dimen/margin_medium"
-            android:fontFamily="@font/ys_display_regular"
-            android:textColor="@color/black"
-            android:textColorHint="@color/gray" />
-
-        <!-- Кнопка очистки (крестик). Изначально скрыта (gone) -->
-        <ImageView
-            android:id="@+id/iv_clear_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="@dimen/margin_medium"
-            android:src="@android:drawable/ic_menu_close_clear_cancel"
-            android:visibility="gone"
-            android:contentDescription="@null"
-            app:tint="@color/gray" />
-
-    </FrameLayout>
 </LinearLayout>
