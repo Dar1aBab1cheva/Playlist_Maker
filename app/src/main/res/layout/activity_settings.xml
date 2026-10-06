@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/colorOnPrimary"> <!-- Используем атрибут темы для фона -->
+    android:background="?attr/colorSurface">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
@@ -16,113 +16,79 @@
         app:navigationIcon="@drawable/ic_arrow_back"
         app:titleTextColor="?attr/colorPrimary" />
 
-    <!-- Список настроек -->
-    <LinearLayout
+    <!-- Переключатель темной темы -->
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switch_dark_theme"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/margin_medium"
+        android:paddingVertical="20dp"
+        android:text="@string/setting_dark_theme"
+        android:textSize="@dimen/button_text_size"
+        android:fontFamily="@font/ys_display_regular"
+        android:textColor="?attr/colorOnSurface"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        app:thumbTint="@color/switch_thumb_tint"
+        app:trackTint="@color/switch_track_tint" />
 
-        <!-- Темная тема -->
-        <RelativeLayout
-            android:id="@+id/item_dark_theme"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="@dimen/margin_medium"
-            android:paddingHorizontal="@dimen/margin_medium"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground">
+    <!-- Поделиться -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/item_share"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/margin_medium"
+        android:paddingVertical="20dp"
+        android:text="@string/setting_share"
+        android:textSize="@dimen/button_text_size"
+        android:fontFamily="@font/ys_display_regular"
+        android:textColor="?attr/colorOnSurface"
+        android:drawableEnd="@drawable/ic_share"
+        android:drawablePadding="@dimen/margin_medium"
+        app:drawableTint="@color/gray"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true" />
 
-            <TextView
-                style="@style/SettingsItemTextStyle"
-                android:layout_centerVertical="true"
-                android:layout_toStartOf="@id/switch_dark_theme"
-                android:layout_alignParentStart="true"
-                android:layout_marginEnd="@dimen/margin_medium"
-                android:text="@string/setting_dark_theme" />
+    <!-- Написать в поддержку -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/item_support"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/margin_medium"
+        android:paddingVertical="20dp"
+        android:text="@string/setting_support"
+        android:textSize="@dimen/button_text_size"
+        android:fontFamily="@font/ys_display_regular"
+        android:textColor="?attr/colorOnSurface"
+        android:drawableEnd="@drawable/ic_support"
+        android:drawablePadding="@dimen/margin_medium"
+        app:drawableTint="@color/gray"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true" />
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/switch_dark_theme"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true" />
-        </RelativeLayout>
+    <!-- Пользовательское соглашение -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/item_agreement"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/margin_medium"
+        android:paddingVertical="20dp"
+        android:text="@string/setting_agreement"
+        android:textSize="@dimen/button_text_size"
+        android:fontFamily="@font/ys_display_regular"
+        android:textColor="?attr/colorOnSurface"
+        android:drawableEnd="@drawable/ic_arrow_forward"
+        android:drawablePadding="@dimen/margin_medium"
+        app:drawableTint="@color/gray"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true" />
 
-        <!-- Поделиться -->
-        <LinearLayout
-            android:id="@+id/item_share"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingVertical="@dimen/margin_medium"
-            android:paddingHorizontal="@dimen/margin_medium"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground">
-
-            <TextView
-                style="@style/SettingsItemTextStyle"
-                android:text="@string/setting_share" />
-
-            <ImageView
-                android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/icon_size"
-                android:src="@drawable/ic_share"
-                android:contentDescription="@null"
-                app:tint="@color/gray" />
-        </LinearLayout>
-
-        <!-- Поддержка -->
-        <LinearLayout
-            android:id="@+id/item_support"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingVertical="@dimen/margin_medium"
-            android:paddingHorizontal="@dimen/margin_medium"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground">
-
-            <TextView
-                style="@style/SettingsItemTextStyle"
-                android:text="@string/setting_support" />
-
-            <ImageView
-                android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/icon_size"
-                android:src="@drawable/ic_support"
-                android:contentDescription="@null"
-                app:tint="@color/gray" />
-        </LinearLayout>
-
-        <!-- Соглашение -->
-        <LinearLayout
-            android:id="@+id/item_agreement"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingVertical="@dimen/margin_medium"
-            android:paddingHorizontal="@dimen/margin_medium"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground">
-
-            <TextView
-                style="@style/SettingsItemTextStyle"
-                android:text="@string/setting_agreement" />
-
-            <ImageView
-                android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/icon_size"
-                android:src="@drawable/ic_arrow_forward"
-                android:contentDescription="@null"
-                app:tint="@color/gray" />
-        </LinearLayout>
-
-    </LinearLayout>
 </LinearLayout>

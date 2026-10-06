@@ -1,5 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Базовая тема приложения. DayNight означает поддержку автоматического ночного режима -->
     <style name="Theme.PlaylistMaker" parent="Theme.MaterialComponents.DayNight.NoActionBar">
 
         <!-- Цвета для СВЕТЛОЙ темы -->
@@ -11,10 +10,11 @@
         <item name="colorSecondaryVariant">@color/gray</item>
         <item name="colorOnSecondary">@color/black</item>
 
-        <!-- Цвет статус-бара (полоска сверху с часами) -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <!-- Добавляем colorSurface для фона экранов -->
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/black</item>
 
-        <!-- Цвет фона всего приложения по умолчанию -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <item name="android:windowBackground">@color/background_light</item>
     </style>
 </resources>
