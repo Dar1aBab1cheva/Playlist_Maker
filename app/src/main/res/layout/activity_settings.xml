@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/colorOnPrimary">
+    android:background="?attr/colorSurface">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
@@ -16,7 +16,7 @@
         app:navigationIcon="@drawable/ic_arrow_back"
         app:titleTextColor="?attr/colorPrimary" />
 
-    <!-- Переключатель темной темы (SwitchMaterial поддерживает текст из коробки) -->
+    <!-- Переключатель темной темы -->
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/switch_dark_theme"
         android:layout_width="match_parent"
@@ -30,7 +30,9 @@
         android:textColor="?attr/colorOnSurface"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
-        android:focusable="true" />
+        android:focusable="true"
+        app:thumbTint="@color/switch_thumb_tint"
+        app:trackTint="@color/switch_track_tint" />
 
     <!-- Поделиться -->
     <com.google.android.material.textview.MaterialTextView

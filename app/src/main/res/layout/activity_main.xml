@@ -27,63 +27,66 @@
         android:paddingVertical="@dimen/margin_medium">
 
         <!-- Кнопка Поиск -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_search"
-            style="@style/MainButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_marginBottom="@dimen/margin_medium"
-            android:background="@drawable/button_background"
-            android:drawableStart="@drawable/ic_search"
-            android:drawablePadding="@dimen/margin_small"
-            android:drawableTint="@color/black"
-            android:text="@string/btn_search"
+            android:backgroundTint="@color/white"
             android:textColor="@color/black"
-            android:fontFamily="@font/ys_display_medium"
+            android:text="@string/btn_search"
             android:textSize="@dimen/button_text_size"
             android:textAllCaps="false"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="@dimen/margin_medium" />
+            android:fontFamily="@font/ys_display_medium"
+            android:gravity="center"
+            app:icon="@drawable/ic_search"
+            app:iconTint="@color/black"
+            app:iconGravity="textStart"
+            app:iconPadding="@dimen/margin_small"
+            app:iconSize="24dp"
+            app:cornerRadius="16dp" />
 
         <!-- Кнопка Медиатека -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_media"
-            style="@style/MainButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_marginBottom="@dimen/margin_medium"
-            android:background="@drawable/button_background"
-            android:drawableStart="@drawable/ic_library"
-            android:drawablePadding="@dimen/margin_small"
-            android:drawableTint="@color/black"
-            android:text="@string/btn_media"
+            android:backgroundTint="@color/white"
             android:textColor="@color/black"
-            android:fontFamily="@font/ys_display_medium"
+            android:text="@string/btn_media"
             android:textSize="@dimen/button_text_size"
             android:textAllCaps="false"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="@dimen/margin_medium" />
+            android:fontFamily="@font/ys_display_medium"
+            android:gravity="center"
+            app:icon="@drawable/ic_library"
+            app:iconTint="@color/black"
+            app:iconGravity="textStart"
+            app:iconPadding="@dimen/margin_small"
+            app:iconSize="24dp"
+            app:cornerRadius="16dp" />
 
         <!-- Кнопка Настройки -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_settings"
-            style="@style/MainButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@drawable/button_background"
-            android:drawableStart="@drawable/ic_settings"
-            android:drawablePadding="@dimen/margin_small"
-            android:drawableTint="@color/black"
-            android:text="@string/btn_settings"
+            android:backgroundTint="@color/white"
             android:textColor="@color/black"
-            android:fontFamily="@font/ys_display_medium"
+            android:text="@string/btn_settings"
             android:textSize="@dimen/button_text_size"
             android:textAllCaps="false"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="@dimen/margin_medium" />
+            android:fontFamily="@font/ys_display_medium"
+            android:gravity="center"
+            app:icon="@drawable/ic_settings"
+            app:iconTint="@color/black"
+            app:iconGravity="textStart"
+            app:iconPadding="@dimen/margin_small"
+            app:iconSize="24dp"
+            app:cornerRadius="16dp" />
 
     </LinearLayout>
 </LinearLayout>
