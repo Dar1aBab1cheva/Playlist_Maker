@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/colorPrimary">
+    android:background="?attr/colorPrimary"> <!-- Синий в светлой теме, тёмный в тёмной -->
 
     <!-- Toolbar с заголовком -->
     <com.google.android.material.appbar.MaterialToolbar
@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:title="@string/main_title"
-        app:titleTextColor="@color/white" />
+        app:titleTextColor="@color/white" /> <!-- Белый текст отлично виден и на синем, и на тёмном -->
 
     <!-- Контейнер для кнопок -->
     <LinearLayout

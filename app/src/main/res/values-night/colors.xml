@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Переопределяем для ТЁМНОЙ темы -->
+    <color name="light_gray">#FFFFFF</color> <!-- Строка поиска белая -->
+    <color name="background_light">#1A1B22</color> <!-- Фон тёмной темы -->
+</resources>
