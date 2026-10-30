@@ -7,16 +7,15 @@
     android:orientation="vertical"
     android:background="?attr/colorSurface">
 
-    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:title="@string/settings_title"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:titleTextColor="?attr/colorPrimary" />
+        app:navigationIconTint="?attr/colorOnSurface"
+        app:titleTextColor="?attr/colorOnSurface" />
 
-    <!-- Переключатель темной темы -->
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/switch_dark_theme"
         android:layout_width="match_parent"
@@ -34,7 +33,6 @@
         app:thumbTint="@color/switch_thumb_tint"
         app:trackTint="@color/switch_track_tint" />
 
-    <!-- Поделиться -->
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/item_share"
         android:layout_width="match_parent"
@@ -53,7 +51,6 @@
         android:clickable="true"
         android:focusable="true" />
 
-    <!-- Написать в поддержку -->
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/item_support"
         android:layout_width="match_parent"
@@ -72,7 +69,6 @@
         android:clickable="true"
         android:focusable="true" />
 
-    <!-- Пользовательское соглашение -->
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/item_agreement"
         android:layout_width="match_parent"
