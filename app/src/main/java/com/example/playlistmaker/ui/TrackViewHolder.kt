@@ -16,29 +16,29 @@ class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     private val ivArtwork: ImageView = itemView.findViewById(R.id.iv_track_artwork)
     private val tvTrackName: TextView = itemView.findViewById(R.id.tv_track_name)
-    private val tvArtistName: TextView = itemView.findViewById(R.id.tv_artist_name)
-    private val tvTrackTime: TextView = itemView.findViewById(R.id.tv_track_time)
+    private val tvTrackSubtitle: TextView = itemView.findViewById(R.id.tv_track_subtitle)
 
     fun bind(track: Track) {
-        // Заполняем текстовые поля
+        // 1. Заполняем текстовые поля
         tvTrackName.text = track.trackName
-        tvArtistName.text = track.artistName
-        tvTrackTime.text = track.trackTime
+        // Склеиваем исполнителя, точку и время в одну строку
+        tvTrackSubtitle.text = "${track.artistName} • ${track.trackTime}"
 
-        // Загружаем обложку с помощью Glide
+        // 2. Загружаем обложку с помощью Glide
         val context = itemView.context
-        val cornerRadius = dpToPx(8f, context) // Закругление углов 8dp
+        // ИСПРАВЛЕНО: радиус теперь 2dp вместо 8dp
+        val cornerRadius = dpToPx(2f, context)
 
         Glide.with(itemView)
             .load(track.artworkUrl100)
             .centerCrop()
             .apply(RequestOptions().transform(RoundedCorners(cornerRadius)))
-            .placeholder(R.drawable.ic_library) // Показывается во время загрузки
-            .error(R.drawable.ic_library)       // Показывается при ошибке (нет интернета)
+            // ИСПРАВЛЕНО: плейсхолдер - наша новая серая иконка
+            .placeholder(R.drawable.ic_placeholder)
+            .error(R.drawable.ic_placeholder)
             .into(ivArtwork)
     }
 
-    // Вспомогательная функция для перевода dp в px
     private fun dpToPx(dp: Float, context: Context): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
