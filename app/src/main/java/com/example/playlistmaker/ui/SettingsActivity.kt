@@ -3,6 +3,7 @@ package com.example.playlistmaker.ui
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.TypedValue
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
@@ -34,6 +35,12 @@ class SettingsActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { finish() }
+
+        // === ИСПРАВЛЕНИЕ ЦВЕТА СТРЕЛКИ ===
+        val typedValue = TypedValue()
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
+        binding.toolbar.navigationIcon?.setTint(typedValue.data)
+        // =================================
 
         loadThemeState()
         setupClickListeners()
@@ -70,17 +77,14 @@ class SettingsActivity : AppCompatActivity() {
         // 3. Кнопка "Написать в поддержку"
         binding.itemSupport.setOnClickListener {
             val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
-                data = Uri.parse("mailto:") // Важно: только почтовые клиенты
+                data = Uri.parse("mailto:")
                 putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.support_email)))
                 putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject))
                 putExtra(Intent.EXTRA_TEXT, getString(R.string.email_body))
             }
 
-            // Проверка на наличие почтового клиента, чтобы избежать краша
             if (emailIntent.resolveActivity(packageManager) != null) {
                 startActivity(emailIntent)
-            } else {
-                // Можно добавить Toast, но по ТЗ достаточно просто не крашиться
             }
         }
 

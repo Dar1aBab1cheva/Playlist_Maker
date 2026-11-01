@@ -5,24 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/colorOnPrimary">
+    android:background="?attr/colorSurface">
 
-    <!-- Toolbar с кнопкой назад -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:title="@string/search_title"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:titleTextColor="?attr/colorPrimary" />
+        app:navigationIconTint="?attr/colorOnSurface"
+        app:titleTextColor="?attr/colorOnSurface" />
 
-    <!-- Контейнер для поля ввода и кнопки очистки -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin_medium">
 
-        <!-- Поле ввода с иконкой лупы и закруглёнными краями -->
         <EditText
             android:id="@+id/et_search"
             android:layout_width="match_parent"
@@ -42,7 +40,6 @@
             android:paddingStart="12dp"
             android:paddingEnd="48dp" />
 
-        <!-- Кнопка очистки (крестик). Изначально скрыта (gone) -->
         <ImageView
             android:id="@+id/iv_clear_search"
             android:layout_width="24dp"
@@ -53,6 +50,14 @@
             android:visibility="gone"
             android:contentDescription="@string/clear_search"
             app:tint="@color/gray" />
-
     </FrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_tracks"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp" />
+
 </LinearLayout>
