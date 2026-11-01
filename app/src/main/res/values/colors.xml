@@ -19,4 +19,5 @@
     <!-- Фоны -->
     <color name="background_light">#FFFFFF</color>
     <color name="background_dark">#1A1B22</color>
+    <color name="track_subtitle_color">#AEAFB4</color>
 </resources>

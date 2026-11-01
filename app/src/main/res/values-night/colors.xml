@@ -3,4 +3,5 @@
     <!-- Переопределяем для ТЁМНОЙ темы -->
     <color name="light_gray">#FFFFFF</color> <!-- Строка поиска белая -->
     <color name="background_light">#1A1B22</color> <!-- Фон тёмной темы -->
+    <color name="track_subtitle_color">#FFFFFF</color>
 </resources>
