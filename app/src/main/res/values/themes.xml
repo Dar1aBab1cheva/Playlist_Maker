@@ -1,20 +1,19 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Theme.PlaylistMaker" parent="Theme.MaterialComponents.DayNight.NoActionBar">
 
-        <!-- Цвета для СВЕТЛОЙ темы -->
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryVariant">@color/primary_variant</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <!-- ГЛАВНЫЙ ЭКРАН (Светлая тема) -->
+        <item name="colorPrimary">@color/yp_blue</item>       <!-- Синий фон -->
+        <item name="colorOnPrimary">@color/white</item>       <!-- Белый текст/иконки на главном экране -->
 
-        <item name="colorSecondary">@color/gray</item>
-        <item name="colorSecondaryVariant">@color/gray</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <!-- ОСТАЛЬНЫЕ ЭКРАНЫ (Поиск, Настройки) -->
+        <item name="colorSurface">@color/yp_white</item>      <!-- Белый фон -->
+        <item name="colorOnSurface">@color/yp_black</item>    <!-- Чёрный текст -->
 
-        <!-- Добавляем colorSurface для фона экранов -->
-        <item name="colorSurface">@color/white</item>
-        <item name="colorOnSurface">@color/black</item>
+        <item name="colorSecondary">@color/yp_text_gray</item>
+        <item name="colorSecondaryVariant">@color/yp_text_gray</item>
+        <item name="colorOnSecondary">@color/yp_black</item>
 
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <item name="android:windowBackground">@color/background_light</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
+        <item name="android:windowBackground">?attr/colorPrimary</item>
     </style>
 </resources>
