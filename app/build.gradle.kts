@@ -51,6 +51,11 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.glide)
 
+    // Сеть: Retrofit + Gson
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.gson)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

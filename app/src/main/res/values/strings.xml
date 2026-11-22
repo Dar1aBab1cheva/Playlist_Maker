@@ -27,4 +27,7 @@
     <string name="clear_search">Очистить поисковый запрос</string>
     <string name="track_artwork">Обложка трека</string>
     <string name="chevron_description">Перейти к треку</string>
+    <string name="nothing_found">Ничего не нашлось</string>
+    <string name="server_error">Проблемы со связью\n\nЗагрузка не удалась. Проверьте подключение к интернету</string>
+    <string name="refresh">Обновить</string>
 </resources>
