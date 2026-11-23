@@ -27,6 +27,8 @@
             android:layout_height="wrap_content"
             android:hint="@string/search_hint"
             android:maxLines="1"
+            android:singleLine="true"
+            android:imeOptions="actionDone"
             android:inputType="text"
             android:background="@drawable/edit_text_background"
             android:fontFamily="@font/ys_display_regular"
@@ -52,12 +54,79 @@
             app:tint="@color/gray" />
     </FrameLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_tracks"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingBottom="16dp" />
+        android:layout_weight="1">
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_tracks"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp" />
+
+        <LinearLayout
+            android:id="@+id/placeholder_no_results"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/iv_no_results"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_no_results"
+                android:contentDescription="@string/nothing_found" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/nothing_found"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="19sp"
+                android:fontFamily="@font/ys_display_medium" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/placeholder_error"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/iv_server_error"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_server_error"
+                android:contentDescription="@string/server_error" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/server_error"
+                android:textAlignment="center"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="19sp"
+                android:fontFamily="@font/ys_display_medium" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_refresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/refresh"
+                android:textAllCaps="false"
+                android:backgroundTint="?attr/colorOnSurface"
+                android:textColor="?attr/colorSurface"
+                app:cornerRadius="54dp" />
+        </LinearLayout>
+
+    </FrameLayout>
 </LinearLayout>

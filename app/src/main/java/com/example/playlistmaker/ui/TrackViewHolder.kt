@@ -8,9 +8,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.bumptech.glide.request.RequestOptions
 import com.example.playlistmaker.R
 import com.example.playlistmaker.models.Track
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -19,31 +20,31 @@ class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val tvTrackSubtitle: TextView = itemView.findViewById(R.id.tv_track_subtitle)
 
     fun bind(track: Track) {
-        // 1. Заполняем текстовые поля
-        tvTrackName.text = track.trackName
-        // Склеиваем исполнителя, точку и время в одну строку
-        tvTrackSubtitle.text = "${track.artistName} • ${track.trackTime}"
+        tvTrackName.text = track.trackName ?: ""
 
-        // 2. Загружаем обложку с помощью Glide
-        val context = itemView.context
-        // ИСПРАВЛЕНО: радиус теперь 2dp вместо 8dp
-        val cornerRadius = dpToPx(2f, context)
+        val artist = track.artistName ?: ""
+        val time = formatTime(track.trackTimeMillis)
+        tvTrackSubtitle.text = if (time.isNotEmpty()) "$artist • $time" else artist
 
+        val cornerRadius = dpToPx(2f, itemView.context)
         Glide.with(itemView)
             .load(track.artworkUrl100)
             .centerCrop()
-            .apply(RequestOptions().transform(RoundedCorners(cornerRadius)))
-            // ИСПРАВЛЕНО: плейсхолдер - наша новая серая иконка
+            .transform(RoundedCorners(cornerRadius))
             .placeholder(R.drawable.ic_placeholder)
             .error(R.drawable.ic_placeholder)
             .into(ivArtwork)
     }
 
+    private fun formatTime(millis: Long?): String {
+        return if (millis != null) {
+            SimpleDateFormat("mm:ss", Locale.getDefault()).format(millis)
+        } else ""
+    }
+
     private fun dpToPx(dp: Float, context: Context): Int {
         return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp,
-            context.resources.displayMetrics
+            TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics
         ).toInt()
     }
 }
