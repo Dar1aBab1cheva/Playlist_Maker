@@ -13,7 +13,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.playlistmaker.App
 import com.example.playlistmaker.R
+import com.example.playlistmaker.data.SearchHistory
 import com.example.playlistmaker.databinding.ActivitySearchBinding
 import com.example.playlistmaker.models.TracksResponse
 import com.example.playlistmaker.network.ITunesClient
@@ -24,9 +26,13 @@ import retrofit2.Response
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchBinding
+    private lateinit var searchHistory: SearchHistory
+
     private var searchQuery = ""
     private var lastFailedQuery = ""
+
     private val adapter = TrackAdapter()
+    private val historyAdapter = TrackAdapter()
 
     companion object {
         private const val SEARCH_QUERY_KEY = "search_query_key"
@@ -51,27 +57,36 @@ class SearchActivity : AppCompatActivity() {
         theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
         binding.toolbar.navigationIcon?.setTint(typedValue.data)
 
+        searchHistory = SearchHistory(getSharedPreferences(App.PREFS_NAME, MODE_PRIVATE))
+
         setupRecyclerView()
+        setupHistoryRecyclerView()
         setupSearchEditText()
         setupClearButton()
         setupRefreshButton()
+        setupClearHistoryButton()
+
+        adapter.onItemClickListener = { track -> searchHistory.add(track) }
+        historyAdapter.onItemClickListener = { track ->
+            searchHistory.add(track)
+            updateHistoryVisibility()
+        }
+
+        binding.etSearch.requestFocus()
+        updateHistoryVisibility()
     }
 
     override fun onResume() {
         super.onResume()
         updatePlaceholderImages()
+        updateHistoryVisibility()
     }
 
-    // Ставим правильные заглушки под текущую тему
     private fun updatePlaceholderImages() {
         val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
                 Configuration.UI_MODE_NIGHT_YES
-        binding.ivNoResults.setImageResource(
-            if (isDark) R.drawable.ic_no_results_dm else R.drawable.ic_no_results
-        )
-        binding.ivServerError.setImageResource(
-            if (isDark) R.drawable.ic_server_error_dm else R.drawable.ic_server_error
-        )
+        binding.ivNoResults.setImageResource(if (isDark) R.drawable.ic_no_results_dm else R.drawable.ic_no_results)
+        binding.ivServerError.setImageResource(if (isDark) R.drawable.ic_server_error_dm else R.drawable.ic_server_error)
     }
 
     private fun setupRecyclerView() {
@@ -81,21 +96,42 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupHistoryRecyclerView() {
+        binding.recyclerViewHistory.apply {
+            layoutManager = LinearLayoutManager(this@SearchActivity)
+            adapter = historyAdapter
+        }
+    }
+
     private fun setupSearchEditText() {
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 searchQuery = s.toString()
                 binding.ivClearSearch.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
+                updateHistoryVisibility()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
 
         binding.etSearch.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                search()
-                true
-            } else false
+            if (actionId == EditorInfo.IME_ACTION_DONE) { search(); true } else false
+        }
+
+        binding.etSearch.setOnFocusChangeListener { _, _ -> updateHistoryVisibility() }
+    }
+
+    private fun updateHistoryVisibility() {
+        val history = searchHistory.read()
+        val show = binding.etSearch.text.isEmpty() && binding.etSearch.hasFocus() && history.isNotEmpty()
+        if (show) {
+            historyAdapter.updateData(history)
+            binding.historyContainer.visibility = View.VISIBLE
+            binding.recyclerViewTracks.visibility = View.GONE
+            binding.placeholderNoResults.visibility = View.GONE
+            binding.placeholderError.visibility = View.GONE
+        } else {
+            binding.historyContainer.visibility = View.GONE
         }
     }
 
@@ -107,6 +143,15 @@ class SearchActivity : AppCompatActivity() {
             binding.recyclerViewTracks.visibility = View.GONE
             binding.placeholderNoResults.visibility = View.GONE
             binding.placeholderError.visibility = View.GONE
+            updateHistoryVisibility()
+        }
+    }
+
+    private fun setupClearHistoryButton() {
+        binding.btnClearHistory.setOnClickListener {
+            searchHistory.clear()
+            historyAdapter.updateData(emptyList())
+            binding.historyContainer.visibility = View.GONE
         }
     }
 
@@ -144,18 +189,21 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showList() {
+        binding.historyContainer.visibility = View.GONE
         binding.recyclerViewTracks.visibility = View.VISIBLE
         binding.placeholderNoResults.visibility = View.GONE
         binding.placeholderError.visibility = View.GONE
     }
 
     private fun showNoResults() {
+        binding.historyContainer.visibility = View.GONE
         binding.recyclerViewTracks.visibility = View.GONE
         binding.placeholderNoResults.visibility = View.VISIBLE
         binding.placeholderError.visibility = View.GONE
     }
 
     private fun showError() {
+        binding.historyContainer.visibility = View.GONE
         binding.recyclerViewTracks.visibility = View.GONE
         binding.placeholderNoResults.visibility = View.GONE
         binding.placeholderError.visibility = View.VISIBLE

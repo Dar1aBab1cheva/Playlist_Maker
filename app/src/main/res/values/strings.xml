@@ -18,7 +18,7 @@
     <string name="search_title">Поиск</string>
     <string name="search_hint">Поиск</string>
 
-    <!-- Ресурсы для Intent (Обязательно по ТЗ!) -->
+
     <string name="share_message">Ссылка на курс по Андроид-разработке в Практикуме: https://practicum.yandex.ru/android-developer/</string>
     <string name="support_email">support@playlistmaker.com</string>
     <string name="email_subject">Сообщение разработчикам и разработчицам приложения Playlist Maker</string>
@@ -30,4 +30,6 @@
     <string name="nothing_found">Ничего не нашлось</string>
     <string name="server_error">Проблемы со связью\n\nЗагрузка не удалась. Проверьте подключение к интернету</string>
     <string name="refresh">Обновить</string>
+    <string name="history_title">Вы искали</string>
+    <string name="clear_history">Очистить историю</string>
 </resources>
