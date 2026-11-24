@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible // <--  импорт для .isVisible
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityPlayerBinding
@@ -22,6 +23,7 @@ class PlayerActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_TRACK = "extra_track"
+        private const val TAG = "PlayerActivity"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,14 +37,11 @@ class PlayerActivity : AppCompatActivity() {
             insets
         }
 
-
         @Suppress("DEPRECATION")
         track = intent.getSerializableExtra(EXTRA_TRACK) as? Track
 
-        // Настраиваем кнопку "Назад" (это ImageView, а не Toolbar)
         binding.ivBack.setOnClickListener { finish() }
 
-        // Красим иконку назад в цвет темы
         val typedValue = TypedValue()
         theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
         binding.ivBack.setColorFilter(typedValue.data)
@@ -55,75 +54,35 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        updateIconsForTheme()
-    }
-
-    private fun updateIconsForTheme() {
-        val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-                Configuration.UI_MODE_NIGHT_YES
-        binding.btnPlay.setImageResource(if (isDark) R.drawable.ic_play_dm else R.drawable.ic_play_lm)
-        binding.btnPlaylist.setImageResource(if (isDark) R.drawable.ic_add_sing_dm else R.drawable.ic_add_sing_lm)
-        binding.btnFavorite.setImageResource(if (isDark) R.drawable.ic_like_void_dm else R.drawable.ic_like_void_lm)
-    }
-
     private fun fillTrackData(track: Track) {
         binding.tvTrackName.text = track.trackName.orEmpty()
         binding.tvArtistName.text = track.artistName.orEmpty()
 
-        // Форматирование длительности mm:ss
-        track.trackTimeMillis?.let {
-            val timeFormatted = SimpleDateFormat("mm:ss", Locale.getDefault()).format(it)
-            binding.valueDuration.text = timeFormatted
-            binding.tvProgress.text = timeFormatted
-        } ?: run {
-            binding.valueDuration.text = ""
-            binding.tvProgress.text = ""
-        }
+        // Рекомендация 3: Упрощение форматирования времени через .orEmpty()
+        val timeFormatted = track.trackTimeMillis?.let {
+            SimpleDateFormat("mm:ss", Locale.getDefault()).format(it)
+        }.orEmpty()
+        binding.valueDuration.text = timeFormatted
+        binding.tvProgress.text = timeFormatted
 
-        // Альбом: показываем только если есть
-        if (!track.collectionName.isNullOrEmpty()) {
-            binding.valueAlbum.text = track.collectionName
-            binding.labelAlbum.visibility = View.VISIBLE
-            binding.valueAlbum.visibility = View.VISIBLE
-        } else {
-            binding.labelAlbum.visibility = View.GONE
-            binding.valueAlbum.visibility = View.GONE
-        }
+        // Рекомендация 2: Использование View.isVisible вместо if/else
+        binding.valueAlbum.text = track.collectionName.orEmpty()
+        binding.labelAlbum.isVisible = !track.collectionName.isNullOrEmpty()
+        binding.valueAlbum.isVisible = !track.collectionName.isNullOrEmpty()
 
-        // Год релиза: показываем только если есть (берём первые 4 символа)
-        if (!track.releaseDate.isNullOrEmpty()) {
-            val year = if (track.releaseDate.length >= 4) track.releaseDate.substring(0, 4) else track.releaseDate
-            binding.valueYear.text = year
-            binding.labelYear.visibility = View.VISIBLE
-            binding.valueYear.visibility = View.VISIBLE
-        } else {
-            binding.labelYear.visibility = View.GONE
-            binding.valueYear.visibility = View.GONE
-        }
+        val year = track.releaseDate?.takeIf { it.length >= 4 }?.substring(0, 4) ?: track.releaseDate.orEmpty()
+        binding.valueYear.text = year
+        binding.labelYear.isVisible = !track.releaseDate.isNullOrEmpty()
+        binding.valueYear.isVisible = !track.releaseDate.isNullOrEmpty()
 
-        // Жанр
-        if (!track.primaryGenreName.isNullOrEmpty()) {
-            binding.valueGenre.text = track.primaryGenreName
-            binding.labelGenre.visibility = View.VISIBLE
-            binding.valueGenre.visibility = View.VISIBLE
-        } else {
-            binding.labelGenre.visibility = View.GONE
-            binding.valueGenre.visibility = View.GONE
-        }
+        binding.valueGenre.text = track.primaryGenreName.orEmpty()
+        binding.labelGenre.isVisible = !track.primaryGenreName.isNullOrEmpty()
+        binding.valueGenre.isVisible = !track.primaryGenreName.isNullOrEmpty()
 
-        // Страна
-        if (!track.country.isNullOrEmpty()) {
-            binding.valueCountry.text = track.country
-            binding.labelCountry.visibility = View.VISIBLE
-            binding.valueCountry.visibility = View.VISIBLE
-        } else {
-            binding.labelCountry.visibility = View.GONE
-            binding.valueCountry.visibility = View.GONE
-        }
+        binding.valueCountry.text = track.country.orEmpty()
+        binding.labelCountry.isVisible = !track.country.isNullOrEmpty()
+        binding.valueCountry.isVisible = !track.country.isNullOrEmpty()
 
-        // Загрузка обложки 512x512 через Glide
         Glide.with(this)
             .load(track.getCoverArtwork())
             .centerCrop()

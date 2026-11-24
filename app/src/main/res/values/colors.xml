@@ -20,4 +20,6 @@
     <color name="background_light">#FFFFFF</color>
     <color name="background_dark">#1A1B22</color>
     <color name="track_subtitle_color">#AEAFB4</color>
+    <color name="player_button_bg">#401A1B22</color>   <!-- боковые: тёмный + 25% -->
+    <color name="player_button_play_bg">#1A1B22</color> <!-- Play: сплошной тёмный -->
 </resources>
