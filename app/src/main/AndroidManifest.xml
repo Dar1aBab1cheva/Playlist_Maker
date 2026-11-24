@@ -26,6 +26,7 @@
         <activity android:name=".ui.SearchActivity" />
         <activity android:name=".ui.MediaActivity" />
         <activity android:name=".ui.PlaylistActivity" />
+        <activity android:name=".ui.PlayerActivity" />
 
     </application>
 </manifest>

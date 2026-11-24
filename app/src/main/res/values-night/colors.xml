@@ -4,4 +4,6 @@
     <color name="light_gray">#FFFFFF</color> <!-- Строка поиска белая -->
     <color name="background_light">#1A1B22</color> <!-- Фон тёмной темы -->
     <color name="track_subtitle_color">#FFFFFF</color>
+    <color name="player_button_bg">#40FFFFFF</color>   <!-- боковые: белый + 25% -->
+    <color name="player_button_play_bg">#FFFFFF</color> <!-- Play: сплошной белый -->
 </resources>

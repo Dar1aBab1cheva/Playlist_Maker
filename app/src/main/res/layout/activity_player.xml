@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/player_side_margin">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/leftGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/player_side_margin" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/rightGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/player_side_margin" />
+
+        <!-- Кнопка назад -->
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="@dimen/player_back_size"
+            android:layout_height="@dimen/player_back_size"
+            android:layout_marginTop="8dp"
+            android:padding="12dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_arrow_back"
+            android:contentDescription="@string/player_back"
+            app:tint="?attr/colorOnSurface"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Обложка -->
+        <ImageView
+            android:id="@+id/iv_cover"
+            android:layout_width="@dimen/player_cover_size"
+            android:layout_height="@dimen/player_cover_size"
+            android:layout_marginTop="8dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_player_placeholder"
+            android:contentDescription="@string/player_cover"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_back" />
+
+        <!-- Название трека -->
+        <TextView
+            android:id="@+id/tv_track_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:fontFamily="@font/ys_display_medium"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/player_text_large"
+            tools:text="Yesterday (Remastered 2009)"
+            app:layout_constraintStart_toStartOf="@id/leftGuideline"
+            app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+            app:layout_constraintTop_toBottomOf="@id/iv_cover" />
+
+        <!-- Исполнитель -->
+        <TextView
+            android:id="@+id/tv_artist_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="@color/gray"
+            android:textSize="@dimen/player_text_medium"
+            tools:text="The Beatles"
+            app:layout_constraintStart_toStartOf="@id/leftGuideline"
+            app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+            app:layout_constraintTop_toBottomOf="@id/tv_track_name" />
+
+        <!-- Кнопка «Добавить в плейлист» (слева от Play, выровнена по центру) -->
+        <ImageView
+            android:id="@+id/btn_playlist"
+            android:layout_width="@dimen/player_secondary_size"
+            android:layout_height="@dimen/player_secondary_size"
+            android:layout_marginEnd="56dp"
+            android:src="@drawable/ic_add_sing"
+            android:contentDescription="@string/player_add_to_playlist"
+            app:layout_constraintEnd_toStartOf="@id/btn_play"
+            app:layout_constraintTop_toTopOf="@id/btn_play"
+            app:layout_constraintBottom_toBottomOf="@id/btn_play" />
+
+        <!-- Кнопка Play/Pause (по центру) -->
+        <ImageView
+            android:id="@+id/btn_play"
+            android:layout_width="@dimen/player_play_size"
+            android:layout_height="@dimen/player_play_size"
+            android:layout_marginTop="24dp"
+            android:src="@drawable/ic_play"
+            android:contentDescription="@string/player_play"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_artist_name" />
+
+        <!-- Кнопка «Избранное» (справа от Play, выровнена по центру) -->
+        <ImageView
+            android:id="@+id/btn_favorite"
+            android:layout_width="@dimen/player_secondary_size"
+            android:layout_height="@dimen/player_secondary_size"
+            android:layout_marginStart="56dp"
+            android:src="@drawable/ic_like_void"
+            android:contentDescription="@string/player_favorite"
+            app:layout_constraintStart_toEndOf="@id/btn_play"
+            app:layout_constraintTop_toTopOf="@id/btn_play"
+            app:layout_constraintBottom_toBottomOf="@id/btn_play" />
+
+        <!-- Прогресс под кнопкой Play -->
+        <TextView
+            android:id="@+id/tv_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/player_text_small"
+            tools:text="0:00"
+            app:layout_constraintStart_toStartOf="@id/btn_play"
+            app:layout_constraintEnd_toEndOf="@id/btn_play"
+            app:layout_constraintTop_toBottomOf="@id/btn_play" />
+
+        <!-- Длительность -->
+        <TextView
+            android:id="@+id/label_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="@color/gray"
+            android:textSize="@dimen/player_text_small"
+            android:text="@string/player_duration_label"
+            app:layout_constraintStart_toStartOf="@id/leftGuideline"
+            app:layout_constraintTop_toBottomOf="@id/tv_progress" />
+
+        <TextView
+            android:id="@+id/value_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/player_text_small"
+            tools:text="5:35"
+            app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_duration" />
+
+        <!-- Альбом -->
+        <TextView
+            android:id="@+id/label_album"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="@color/gray"
+            android:textSize="@dimen/player_text_small"
+            android:text="@string/player_album_label"
+            app:layout_constraintStart_toStartOf="@id/leftGuideline"
+            app:layout_constraintTop_toBottomOf="@id/label_duration" />
+
+        <TextView
+            android:id="@+id/value_album"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/player_text_small"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="Yesterday (Remastered 2009)"
+            app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+            app:layout_constraintStart_toEndOf="@id/label_album"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_album" />
+
+        <!-- Год -->
+        <TextView
+            android:id="@+id/label_year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="@color/gray"
+            android:textSize="@dimen/player_text_small"
+            android:text="@string/player_year_label"
+            app:layout_constraintStart_toStartOf="@id/leftGuideline"
+            app:layout_constraintTop_toBottomOf="@id/label_album" />
+
+        <TextView
+            android:id="@+id/value_year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/player_text_small"
+            tools:text="1965"
+            app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_year" />
+
+        <!-- Жанр -->
+        <TextView
+            android:id="@+id/label_genre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="@color/gray"
+            android:textSize="@dimen/player_text_small"
+            android:text="@string/player_genre_label"
+            app:layout_constraintStart_toStartOf="@id/leftGuideline"
+            app:layout_constraintTop_toBottomOf="@id/label_year" />
+
+        <TextView
+            android:id="@+id/value_genre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/player_text_small"
+            tools:text="Rock"
+            app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_genre" />
+
+        <!-- Страна -->
+        <TextView
+            android:id="@+id/label_country"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="@color/gray"
+            android:textSize="@dimen/player_text_small"
+            android:text="@string/player_country_label"
+            app:layout_constraintStart_toStartOf="@id/leftGuideline"
+            app:layout_constraintTop_toBottomOf="@id/label_genre" />
+
+        <TextView
+            android:id="@+id/value_country"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/player_text_small"
+            tools:text="Великобритания"
+            app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_country" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
