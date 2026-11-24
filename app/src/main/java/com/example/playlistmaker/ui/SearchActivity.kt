@@ -1,6 +1,7 @@
 package com.example.playlistmaker.ui
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.text.Editable
@@ -17,6 +18,7 @@ import com.example.playlistmaker.App
 import com.example.playlistmaker.R
 import com.example.playlistmaker.data.SearchHistory
 import com.example.playlistmaker.databinding.ActivitySearchBinding
+import com.example.playlistmaker.models.Track
 import com.example.playlistmaker.models.TracksResponse
 import com.example.playlistmaker.network.ITunesClient
 import retrofit2.Call
@@ -66,10 +68,17 @@ class SearchActivity : AppCompatActivity() {
         setupRefreshButton()
         setupClearHistoryButton()
 
-        adapter.onItemClickListener = { track -> searchHistory.add(track) }
+        // Клик по треку в результатах -> добавляем в историю и переходим в плеер
+        adapter.onItemClickListener = { track ->
+            searchHistory.add(track)
+            openPlayer(track)
+        }
+
+        // Клик по треку в истории -> поднимаем наверх и переходим в плеер
         historyAdapter.onItemClickListener = { track ->
             searchHistory.add(track)
             updateHistoryVisibility()
+            openPlayer(track)
         }
 
         binding.etSearch.requestFocus()
@@ -212,6 +221,14 @@ class SearchActivity : AppCompatActivity() {
     private fun hideKeyboard(view: View) {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    // Переход на экран плеера
+    private fun openPlayer(track: Track) {
+        val intent = Intent(this, PlayerActivity::class.java).apply {
+            putExtra(PlayerActivity.EXTRA_TRACK, track)
+        }
+        startActivity(intent)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
