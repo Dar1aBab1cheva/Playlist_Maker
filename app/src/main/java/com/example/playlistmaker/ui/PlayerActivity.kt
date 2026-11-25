@@ -1,14 +1,17 @@
 package com.example.playlistmaker.ui
 
 import android.content.res.Configuration
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.TypedValue
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible // <--  импорт для .isVisible
+import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityPlayerBinding
@@ -21,9 +24,29 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
     private var track: Track? = null
 
+    private var mediaPlayer: MediaPlayer? = null
+    private var playerState = STATE_DEFAULT
+
+    private val mainThreadHandler = Handler(Looper.getMainLooper())
+    private val updateProgressRunnable = object : Runnable {
+        override fun run() {
+            val currentPosition = mediaPlayer?.currentPosition ?: 0
+            val formattedTime =
+                SimpleDateFormat("mm:ss", Locale.getDefault()).format(currentPosition.toLong())
+            binding.tvProgress.text = formattedTime
+            mainThreadHandler.postDelayed(this, PROGRESS_UPDATE_DELAY)
+        }
+    }
+
     companion object {
         const val EXTRA_TRACK = "extra_track"
-        private const val TAG = "PlayerActivity"
+
+        private const val STATE_DEFAULT = 0
+        private const val STATE_PREPARED = 1
+        private const val STATE_PLAYING = 2
+        private const val STATE_PAUSED = 3
+
+        private const val PROGRESS_UPDATE_DELAY = 500L
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,34 +66,61 @@ class PlayerActivity : AppCompatActivity() {
         binding.ivBack.setOnClickListener { finish() }
 
         val typedValue = TypedValue()
-        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
+        theme.resolveAttribute(
+            com.google.android.material.R.attr.colorOnSurface,
+            typedValue,
+            true
+        )
         binding.ivBack.setColorFilter(typedValue.data)
 
         if (track != null) {
             fillTrackData(track!!)
+            preparePlayer()
+            binding.btnPlay.setOnClickListener { playbackControl() }
         } else {
             Toast.makeText(this, "Ошибка: трек не передан", Toast.LENGTH_SHORT).show()
             finish()
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        updatePlayerIcon()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        pausePlayer()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mainThreadHandler.removeCallbacks(updateProgressRunnable)
+        mediaPlayer?.release()
+        mediaPlayer = null
+    }
+
+    private fun updatePlayerIcon() {
+        val isPlaying = playerState == STATE_PLAYING
+        binding.btnPlay.setImageResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
+    }
+
     private fun fillTrackData(track: Track) {
         binding.tvTrackName.text = track.trackName.orEmpty()
         binding.tvArtistName.text = track.artistName.orEmpty()
 
-        // Рекомендация 3: Упрощение форматирования времени через .orEmpty()
         val timeFormatted = track.trackTimeMillis?.let {
             SimpleDateFormat("mm:ss", Locale.getDefault()).format(it)
         }.orEmpty()
-        binding.valueDuration.text = timeFormatted
-        binding.tvProgress.text = timeFormatted
+        binding.valueDuration.text = timeFormatted   // общая длительность — НЕ меняется
+        binding.tvProgress.text = "00:00"            // прогресс — старт с нуля
 
-        // Рекомендация 2: Использование View.isVisible вместо if/else
         binding.valueAlbum.text = track.collectionName.orEmpty()
         binding.labelAlbum.isVisible = !track.collectionName.isNullOrEmpty()
         binding.valueAlbum.isVisible = !track.collectionName.isNullOrEmpty()
 
-        val year = track.releaseDate?.takeIf { it.length >= 4 }?.substring(0, 4) ?: track.releaseDate.orEmpty()
+        val year = track.releaseDate?.takeIf { it.length >= 4 }?.substring(0, 4)
+            ?: track.releaseDate.orEmpty()
         binding.valueYear.text = year
         binding.labelYear.isVisible = !track.releaseDate.isNullOrEmpty()
         binding.valueYear.isVisible = !track.releaseDate.isNullOrEmpty()
@@ -89,5 +139,54 @@ class PlayerActivity : AppCompatActivity() {
             .placeholder(R.drawable.ic_player_placeholder)
             .error(R.drawable.ic_player_placeholder)
             .into(binding.ivCover)
+    }
+
+    private fun preparePlayer() {
+        val url = track?.previewUrl
+        if (url.isNullOrEmpty()) {
+            Toast.makeText(this, "Ссылка на превью отсутствует", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        mediaPlayer = MediaPlayer().apply {
+            setDataSource(url)
+            setOnPreparedListener {
+                playerState = STATE_PREPARED
+                updatePlayerIcon()
+            }
+            setOnCompletionListener {
+                // 1. Снимаем таймер ДО сброса текста — иначе Runnable перезапишет 00:00
+                mainThreadHandler.removeCallbacks(updateProgressRunnable)
+                // 2. Возвращаем позицию в начало, чтобы следующий Play был с нуля
+                mediaPlayer?.seekTo(0)
+                playerState = STATE_PREPARED
+                binding.tvProgress.text = "00:00"
+                updatePlayerIcon()
+            }
+            prepareAsync()
+        }
+    }
+
+    private fun playbackControl() {
+        when (playerState) {
+            STATE_PLAYING -> pausePlayer()
+            STATE_PREPARED, STATE_PAUSED -> startPlayer()
+        }
+    }
+
+    private fun startPlayer() {
+        mediaPlayer?.start()
+        playerState = STATE_PLAYING
+        updatePlayerIcon()
+        mainThreadHandler.post(updateProgressRunnable)
+    }
+
+    private fun pausePlayer() {
+        if (playerState == STATE_PLAYING) {
+            mediaPlayer?.pause()
+            playerState = STATE_PAUSED
+            updatePlayerIcon()
+            mainThreadHandler.removeCallbacks(updateProgressRunnable)
+        }
     }
 }
