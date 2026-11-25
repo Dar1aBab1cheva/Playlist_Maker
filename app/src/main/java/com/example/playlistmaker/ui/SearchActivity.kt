@@ -4,11 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.TypedValue
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -32,12 +33,18 @@ class SearchActivity : AppCompatActivity() {
 
     private var searchQuery = ""
     private var lastFailedQuery = ""
+    private var isClickAllowed = true
 
     private val adapter = TrackAdapter()
     private val historyAdapter = TrackAdapter()
 
+    private val handler = Handler(Looper.getMainLooper())
+    private val searchRunnable = Runnable { performSearch(binding.etSearch.text.toString().trim()) }
+
     companion object {
         private const val SEARCH_QUERY_KEY = "search_query_key"
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,17 +75,21 @@ class SearchActivity : AppCompatActivity() {
         setupRefreshButton()
         setupClearHistoryButton()
 
-        // Клик по треку в результатах -> добавляем в историю и переходим в плеер
+        // Клик по треку в результатах с debounce
         adapter.onItemClickListener = { track ->
-            searchHistory.add(track)
-            openPlayer(track)
+            if (clickDebounce()) {
+                searchHistory.add(track)
+                openPlayer(track)
+            }
         }
 
-        // Клик по треку в истории -> поднимаем наверх и переходим в плеер
+        // Клик по треку в истории с debounce
         historyAdapter.onItemClickListener = { track ->
-            searchHistory.add(track)
-            updateHistoryVisibility()
-            openPlayer(track)
+            if (clickDebounce()) {
+                searchHistory.add(track)
+                updateHistoryVisibility()
+                openPlayer(track)
+            }
         }
 
         binding.etSearch.requestFocus()
@@ -89,6 +100,11 @@ class SearchActivity : AppCompatActivity() {
         super.onResume()
         updatePlaceholderImages()
         updateHistoryVisibility()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacks(searchRunnable)
     }
 
     private fun updatePlaceholderImages() {
@@ -118,16 +134,32 @@ class SearchActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 searchQuery = s.toString()
                 binding.ivClearSearch.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
+
+                // Debounce поиска
+                handler.removeCallbacks(searchRunnable)
+                if (!s.isNullOrEmpty()) {
+                    handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+                } else {
+                    // Если поле очистили, скрываем всё
+                    adapter.updateData(emptyList())
+                    binding.recyclerViewTracks.visibility = View.GONE
+                    binding.placeholderNoResults.visibility = View.GONE
+                    binding.placeholderError.visibility = View.GONE
+                    binding.progressBar.visibility = View.GONE
+                }
                 updateHistoryVisibility()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
+    }
 
-        binding.etSearch.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) { search(); true } else false
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
         }
-
-        binding.etSearch.setOnFocusChangeListener { _, _ -> updateHistoryVisibility() }
+        return current
     }
 
     private fun updateHistoryVisibility() {
@@ -139,6 +171,7 @@ class SearchActivity : AppCompatActivity() {
             binding.recyclerViewTracks.visibility = View.GONE
             binding.placeholderNoResults.visibility = View.GONE
             binding.placeholderError.visibility = View.GONE
+            binding.progressBar.visibility = View.GONE
         } else {
             binding.historyContainer.visibility = View.GONE
         }
@@ -148,10 +181,12 @@ class SearchActivity : AppCompatActivity() {
         binding.ivClearSearch.setOnClickListener {
             binding.etSearch.text.clear()
             hideKeyboard(binding.etSearch)
+            handler.removeCallbacks(searchRunnable)
             adapter.updateData(emptyList())
             binding.recyclerViewTracks.visibility = View.GONE
             binding.placeholderNoResults.visibility = View.GONE
             binding.placeholderError.visibility = View.GONE
+            binding.progressBar.visibility = View.GONE
             updateHistoryVisibility()
         }
     }
@@ -170,14 +205,20 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun search() {
-        val query = binding.etSearch.text.toString().trim()
-        if (query.isNotEmpty()) performSearch(query)
-    }
-
     private fun performSearch(query: String) {
+        if (query.isEmpty()) return
+
+        // Показываем ProgressBar и скрываем остальное
+        binding.progressBar.visibility = View.VISIBLE
+        binding.recyclerViewTracks.visibility = View.GONE
+        binding.placeholderNoResults.visibility = View.GONE
+        binding.placeholderError.visibility = View.GONE
+        binding.historyContainer.visibility = View.GONE
+
         ITunesClient.api.searchTracks(query).enqueue(object : Callback<TracksResponse> {
             override fun onResponse(call: Call<TracksResponse>, response: Response<TracksResponse>) {
+                binding.progressBar.visibility = View.GONE // Скрываем ProgressBar
+
                 if (response.code() == 200) {
                     val tracks = response.body()?.results.orEmpty()
                     if (tracks.isEmpty()) showNoResults() else {
@@ -191,6 +232,7 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<TracksResponse>, t: Throwable) {
+                binding.progressBar.visibility = View.GONE // Скрываем ProgressBar
                 lastFailedQuery = query
                 showError()
             }
@@ -198,23 +240,14 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showList() {
-        binding.historyContainer.visibility = View.GONE
         binding.recyclerViewTracks.visibility = View.VISIBLE
-        binding.placeholderNoResults.visibility = View.GONE
-        binding.placeholderError.visibility = View.GONE
     }
 
     private fun showNoResults() {
-        binding.historyContainer.visibility = View.GONE
-        binding.recyclerViewTracks.visibility = View.GONE
         binding.placeholderNoResults.visibility = View.VISIBLE
-        binding.placeholderError.visibility = View.GONE
     }
 
     private fun showError() {
-        binding.historyContainer.visibility = View.GONE
-        binding.recyclerViewTracks.visibility = View.GONE
-        binding.placeholderNoResults.visibility = View.GONE
         binding.placeholderError.visibility = View.VISIBLE
     }
 
@@ -223,7 +256,6 @@ class SearchActivity : AppCompatActivity() {
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    // Переход на экран плеера
     private fun openPlayer(track: Track) {
         val intent = Intent(this, PlayerActivity::class.java).apply {
             putExtra(PlayerActivity.EXTRA_TRACK, track)

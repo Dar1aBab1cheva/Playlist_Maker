@@ -59,6 +59,15 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
+        <!-- Индикатор загрузки -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="center"
+            android:indeterminateTint="?attr/colorOnSurface"
+            android:visibility="gone" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_tracks"
             android:layout_width="match_parent"
@@ -66,7 +75,7 @@
             android:clipToPadding="false"
             android:paddingBottom="16dp" />
 
-        <!-- История: заголовок + список + кнопка сразу под списком -->
+        <!-- Блок истории поиска -->
         <ScrollView
             android:id="@+id/history_container"
             android:layout_width="match_parent"

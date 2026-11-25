@@ -11,7 +11,8 @@ data class Track(
     val collectionName: String?,
     val releaseDate: String?,
     val primaryGenreName: String?,
-    val country: String?
+    val country: String?,
+    val previewUrl: String? // <-- НОВОЕ ПОЛЕ для 14 спринта
 ) : Serializable {
 
     // Обложка в высоком качестве для плеера
