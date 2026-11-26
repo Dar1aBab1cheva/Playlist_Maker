@@ -1,5 +1,6 @@
 package com.example.playlistmaker.di
 
+import android.app.Application
 import android.content.Context
 import com.example.playlistmaker.App
 import com.example.playlistmaker.data.local.SearchHistory
@@ -15,26 +16,36 @@ import com.example.playlistmaker.domain.impl.SettingsInteractorImpl
 
 object Creator {
 
-    // --- SEARCH ---
-    private fun getSearchRepository(context: Context): SearchRepository {
+    private var application: Application? = null
+
+    fun init(app: Application) {
+        application = app
+    }
+
+    private fun getApp(): Application {
+        return application ?: throw IllegalStateException(
+            "Creator not initialized. Call Creator.init() in App.onCreate()"
+        )
+    }
+
+    private fun getSearchRepository(): SearchRepository {
         val history = SearchHistory(
-            context.getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE)
+            getApp().getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE)
         )
         return SearchRepositoryImpl(RetrofitNetworkClient(), history)
     }
 
-    fun provideSearchInteractor(context: Context): SearchInteractor {
-        return SearchInteractorImpl(getSearchRepository(context))
+    fun provideSearchInteractor(): SearchInteractor {
+        return SearchInteractorImpl(getSearchRepository())
     }
 
-    // --- SETTINGS ---
-    private fun getSettingsRepository(context: Context): SettingsRepository {
+    private fun getSettingsRepository(): SettingsRepository {
         return SettingsRepositoryImpl(
-            context.getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE)
+            getApp().getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE)
         )
     }
 
-    fun provideSettingsInteractor(context: Context): SettingsInteractor {
-        return SettingsInteractorImpl(getSettingsRepository(context))
+    fun provideSettingsInteractor(): SettingsInteractor {
+        return SettingsInteractorImpl(getSettingsRepository())
     }
 }

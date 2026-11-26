@@ -2,6 +2,7 @@ package com.example.playlistmaker.domain.impl
 
 import com.example.playlistmaker.domain.api.SearchInteractor
 import com.example.playlistmaker.domain.api.SearchRepository
+import com.example.playlistmaker.domain.models.SearchResult
 import com.example.playlistmaker.domain.models.Track
 import java.util.concurrent.Executors
 
@@ -13,8 +14,11 @@ class SearchInteractorImpl(
 
     override fun searchTracks(expression: String, consumer: SearchInteractor.SearchConsumer) {
         executor.execute {
-            val tracks = repository.searchTracks(expression)
-            consumer.consume(tracks)
+            when (val result = repository.searchTracks(expression)) {
+                is SearchResult.Success -> consumer.consume(result.tracks)
+                is SearchResult.NetworkError -> consumer.consumeError()
+                is SearchResult.ServerError -> consumer.consumeError()
+            }
         }
     }
 

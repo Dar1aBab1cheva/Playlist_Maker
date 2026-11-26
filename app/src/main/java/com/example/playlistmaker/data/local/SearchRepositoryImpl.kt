@@ -4,6 +4,7 @@ import com.example.playlistmaker.data.dto.SearchRequest
 import com.example.playlistmaker.data.dto.TracksResponse
 import com.example.playlistmaker.data.network.NetworkClient
 import com.example.playlistmaker.domain.api.SearchRepository
+import com.example.playlistmaker.domain.models.SearchResult
 import com.example.playlistmaker.domain.models.Track
 
 class SearchRepositoryImpl(
@@ -11,26 +12,37 @@ class SearchRepositoryImpl(
     private val searchHistory: SearchHistory
 ) : SearchRepository {
 
-    override fun searchTracks(expression: String): List<Track> {
-        val response = networkClient.doRequest(SearchRequest(expression))
-
-        if (response.resultCode == 200 && response is TracksResponse) {
-            return response.results.map { dto ->
-                Track(
-                    trackId = dto.trackId,
-                    trackName = dto.trackName,
-                    artistName = dto.artistName,
-                    trackTimeMillis = dto.trackTimeMillis,
-                    artworkUrl100 = dto.artworkUrl100,
-                    collectionName = dto.collectionName,
-                    releaseDate = dto.releaseDate,
-                    primaryGenreName = dto.primaryGenreName,
-                    country = dto.country,
-                    previewUrl = dto.previewUrl
-                )
-            }
+    override fun searchTracks(expression: String): SearchResult {
+        val response = try {
+            networkClient.doRequest(SearchRequest(expression))
+        } catch (e: Exception) {
+            return SearchResult.NetworkError
         }
-        return emptyList()
+
+        return when (response.resultCode) {
+            200 -> {
+                if (response is TracksResponse) {
+                    val tracks = response.results.map { dto ->
+                        Track(
+                            trackId = dto.trackId,
+                            trackName = dto.trackName,
+                            artistName = dto.artistName,
+                            trackTimeMillis = dto.trackTimeMillis,
+                            artworkUrl100 = dto.artworkUrl100,
+                            collectionName = dto.collectionName,
+                            releaseDate = dto.releaseDate,
+                            primaryGenreName = dto.primaryGenreName,
+                            country = dto.country,
+                            previewUrl = dto.previewUrl
+                        )
+                    }
+                    SearchResult.Success(tracks)
+                } else {
+                    SearchResult.ServerError
+                }
+            }
+            else -> SearchResult.ServerError
+        }
     }
 
     override fun getHistory(): List<Track> = searchHistory.read()

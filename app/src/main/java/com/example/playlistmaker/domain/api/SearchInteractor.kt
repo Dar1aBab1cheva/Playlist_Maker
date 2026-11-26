@@ -10,5 +10,6 @@ interface SearchInteractor {
 
     interface SearchConsumer {
         fun consume(tracks: List<Track>)
+        fun consumeError()
     }
 }

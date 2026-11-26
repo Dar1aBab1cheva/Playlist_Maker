@@ -26,7 +26,7 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
 
     private lateinit var binding: ActivitySearchBinding
     private val searchInteractor: SearchInteractor by lazy {
-        Creator.provideSearchInteractor(this)
+        Creator.provideSearchInteractor()
     }
 
     private var searchQuery = ""
@@ -72,6 +72,7 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
         setupSearchEditText()
         setupClearButton()
         setupClearHistoryButton()
+        setupRefreshButton()
 
         adapter.onItemClickListener = { track ->
             if (clickDebounce()) {
@@ -113,6 +114,13 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
                 adapter.updateData(tracks)
                 showList()
             }
+        }
+    }
+
+    override fun consumeError() {
+        runOnUiThread {
+            binding.progressBar.visibility = View.GONE
+            showError()
         }
     }
 
@@ -164,6 +172,16 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
             }
             override fun afterTextChanged(s: Editable?) {}
         })
+    }
+
+    private fun setupRefreshButton() {
+        binding.btnRefresh.setOnClickListener {
+            if (searchQuery.isNotEmpty()) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.placeholderError.visibility = View.GONE
+                searchInteractor.searchTracks(searchQuery, this)
+            }
+        }
     }
 
     private fun clickDebounce(): Boolean {
@@ -218,6 +236,10 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
 
     private fun showNoResults() {
         binding.placeholderNoResults.visibility = View.VISIBLE
+    }
+
+    private fun showError() {
+        binding.placeholderError.visibility = View.VISIBLE
     }
 
     private fun hideKeyboard(view: View) {

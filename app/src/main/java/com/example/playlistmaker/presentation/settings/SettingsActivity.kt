@@ -11,16 +11,16 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.playlistmaker.R
-import com.example.playlistmaker.data.local.SettingsRepositoryImpl
 import com.example.playlistmaker.databinding.ActivitySettingsBinding
 import com.example.playlistmaker.di.Creator
 import com.example.playlistmaker.domain.api.SettingsInteractor
+import com.example.playlistmaker.domain.models.ThemeMode
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
     private val settingsInteractor: SettingsInteractor by lazy {
-        Creator.provideSettingsInteractor(this)
+        Creator.provideSettingsInteractor()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,19 +60,16 @@ class SettingsActivity : AppCompatActivity() {
 
         val currentTheme = settingsInteractor.getThemeMode()
         when (currentTheme) {
-            SettingsRepositoryImpl.THEME_LIGHT ->
-                popup.menu.findItem(R.id.menu_theme_light).isChecked = true
-            SettingsRepositoryImpl.THEME_DARK ->
-                popup.menu.findItem(R.id.menu_theme_dark).isChecked = true
-            else ->
-                popup.menu.findItem(R.id.menu_theme_system).isChecked = true
+            ThemeMode.LIGHT -> popup.menu.findItem(R.id.menu_theme_light).isChecked = true
+            ThemeMode.DARK -> popup.menu.findItem(R.id.menu_theme_dark).isChecked = true
+            else -> popup.menu.findItem(R.id.menu_theme_system).isChecked = true
         }
 
         popup.setOnMenuItemClickListener { menuItem ->
             val newTheme = when (menuItem.itemId) {
-                R.id.menu_theme_light -> SettingsRepositoryImpl.THEME_LIGHT
-                R.id.menu_theme_dark -> SettingsRepositoryImpl.THEME_DARK
-                else -> SettingsRepositoryImpl.THEME_SYSTEM
+                R.id.menu_theme_light -> ThemeMode.LIGHT
+                R.id.menu_theme_dark -> ThemeMode.DARK
+                else -> ThemeMode.SYSTEM
             }
 
             if (newTheme != currentTheme) {
@@ -117,12 +114,9 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun applyTheme(themeMode: String) {
         when (themeMode) {
-            SettingsRepositoryImpl.THEME_LIGHT ->
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            SettingsRepositoryImpl.THEME_DARK ->
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            else ->
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            ThemeMode.LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            ThemeMode.DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         }
     }
 }
