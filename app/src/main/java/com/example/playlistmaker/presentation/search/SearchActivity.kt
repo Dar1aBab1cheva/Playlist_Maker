@@ -1,4 +1,4 @@
-package com.example.playlistmaker.ui
+package com.example.playlistmaker.presentation.search
 
 import android.content.Context
 import android.content.Intent
@@ -17,29 +17,31 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.playlistmaker.App
 import com.example.playlistmaker.R
-import com.example.playlistmaker.data.SearchHistory
+import com.example.playlistmaker.data.local.SearchHistory
 import com.example.playlistmaker.databinding.ActivitySearchBinding
-import com.example.playlistmaker.models.Track
-import com.example.playlistmaker.models.TracksResponse
-import com.example.playlistmaker.network.ITunesClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.playlistmaker.di.Creator
+import com.example.playlistmaker.domain.api.SearchInteractor
+import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.presentation.player.PlayerActivity
 
-class SearchActivity : AppCompatActivity() {
+class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
 
     private lateinit var binding: ActivitySearchBinding
     private lateinit var searchHistory: SearchHistory
+    private val searchInteractor: SearchInteractor = Creator.provideSearchInteractor()
 
     private var searchQuery = ""
-    private var lastFailedQuery = ""
     private var isClickAllowed = true
 
     private val adapter = TrackAdapter()
     private val historyAdapter = TrackAdapter()
 
     private val handler = Handler(Looper.getMainLooper())
-    private val searchRunnable = Runnable { performSearch(binding.etSearch.text.toString().trim()) }
+    private val searchRunnable = Runnable {
+        if (binding.etSearch.text.toString().trim().isNotEmpty()) {
+            searchInteractor.searchTracks(binding.etSearch.text.toString().trim(), this)
+        }
+    }
 
     companion object {
         private const val SEARCH_QUERY_KEY = "search_query_key"
@@ -72,10 +74,8 @@ class SearchActivity : AppCompatActivity() {
         setupHistoryRecyclerView()
         setupSearchEditText()
         setupClearButton()
-        setupRefreshButton()
         setupClearHistoryButton()
 
-        // Клик по треку в результатах с debounce
         adapter.onItemClickListener = { track ->
             if (clickDebounce()) {
                 searchHistory.add(track)
@@ -83,7 +83,6 @@ class SearchActivity : AppCompatActivity() {
             }
         }
 
-        // Клик по треку в истории с debounce
         historyAdapter.onItemClickListener = { track ->
             if (clickDebounce()) {
                 searchHistory.add(track)
@@ -105,6 +104,21 @@ class SearchActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(searchRunnable)
+    }
+
+    // Реализация интерфейса SearchConsumer
+    override fun consume(tracks: List<Track>) {
+        // Переключаемся в главный (UI) поток для обновления интерфейса
+        runOnUiThread {
+            binding.progressBar.visibility = View.GONE
+
+            if (tracks.isEmpty()) {
+                showNoResults()
+            } else {
+                adapter.updateData(tracks)
+                showList()
+            }
+        }
     }
 
     private fun updatePlaceholderImages() {
@@ -135,12 +149,16 @@ class SearchActivity : AppCompatActivity() {
                 searchQuery = s.toString()
                 binding.ivClearSearch.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
 
-                // Debounce поиска
                 handler.removeCallbacks(searchRunnable)
                 if (!s.isNullOrEmpty()) {
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.recyclerViewTracks.visibility = View.GONE
+                    binding.placeholderNoResults.visibility = View.GONE
+                    binding.placeholderError.visibility = View.GONE
+                    binding.historyContainer.visibility = View.GONE
+
                     handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
                 } else {
-                    // Если поле очистили, скрываем всё
                     adapter.updateData(emptyList())
                     binding.recyclerViewTracks.visibility = View.GONE
                     binding.placeholderNoResults.visibility = View.GONE
@@ -199,56 +217,12 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupRefreshButton() {
-        binding.btnRefresh.setOnClickListener {
-            if (lastFailedQuery.isNotEmpty()) performSearch(lastFailedQuery)
-        }
-    }
-
-    private fun performSearch(query: String) {
-        if (query.isEmpty()) return
-
-        // Показываем ProgressBar и скрываем остальное
-        binding.progressBar.visibility = View.VISIBLE
-        binding.recyclerViewTracks.visibility = View.GONE
-        binding.placeholderNoResults.visibility = View.GONE
-        binding.placeholderError.visibility = View.GONE
-        binding.historyContainer.visibility = View.GONE
-
-        ITunesClient.api.searchTracks(query).enqueue(object : Callback<TracksResponse> {
-            override fun onResponse(call: Call<TracksResponse>, response: Response<TracksResponse>) {
-                binding.progressBar.visibility = View.GONE // Скрываем ProgressBar
-
-                if (response.code() == 200) {
-                    val tracks = response.body()?.results.orEmpty()
-                    if (tracks.isEmpty()) showNoResults() else {
-                        adapter.updateData(tracks)
-                        showList()
-                    }
-                } else {
-                    lastFailedQuery = query
-                    showError()
-                }
-            }
-
-            override fun onFailure(call: Call<TracksResponse>, t: Throwable) {
-                binding.progressBar.visibility = View.GONE // Скрываем ProgressBar
-                lastFailedQuery = query
-                showError()
-            }
-        })
-    }
-
     private fun showList() {
         binding.recyclerViewTracks.visibility = View.VISIBLE
     }
 
     private fun showNoResults() {
         binding.placeholderNoResults.visibility = View.VISIBLE
-    }
-
-    private fun showError() {
-        binding.placeholderError.visibility = View.VISIBLE
     }
 
     private fun hideKeyboard(view: View) {
