@@ -9,9 +9,11 @@ class SettingsRepositoryImpl(
 
     companion object {
         const val THEME_KEY = "theme_key"
-        const val THEME_DEFAULT = "Системная"
+        // ВАЖНО: сначала объявляем конкретные значения, потом THEME_DEFAULT
         const val THEME_LIGHT = "Светлая"
         const val THEME_DARK = "Тёмная"
+        const val THEME_SYSTEM = "Системная"
+        const val THEME_DEFAULT = THEME_SYSTEM
     }
 
     override fun getThemeMode(): String {

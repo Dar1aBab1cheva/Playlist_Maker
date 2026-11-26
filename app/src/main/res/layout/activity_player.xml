@@ -41,8 +41,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Обложка -->
-        <ImageView
+        <!-- Обложка (скругление 8dp) -->
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/iv_cover"
             android:layout_width="@dimen/player_cover_size"
             android:layout_height="@dimen/player_cover_size"
@@ -50,11 +50,12 @@
             android:scaleType="centerCrop"
             android:src="@drawable/ic_player_placeholder"
             android:contentDescription="@string/player_cover"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/iv_back" />
 
-        <!-- Название трека -->
+        <!-- Название трека: ширина = ширина обложки -->
         <TextView
             android:id="@+id/tv_track_name"
             android:layout_width="0dp"
@@ -66,11 +67,11 @@
             android:textColor="?attr/colorOnSurface"
             android:textSize="@dimen/player_text_large"
             tools:text="Yesterday (Remastered 2009)"
-            app:layout_constraintStart_toStartOf="@id/leftGuideline"
-            app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+            app:layout_constraintStart_toStartOf="@id/iv_cover"
+            app:layout_constraintEnd_toEndOf="@id/iv_cover"
             app:layout_constraintTop_toBottomOf="@id/iv_cover" />
 
-        <!-- Исполнитель -->
+        <!-- Исполнитель: ширина = ширина обложки -->
         <TextView
             android:id="@+id/tv_artist_name"
             android:layout_width="0dp"
@@ -82,11 +83,11 @@
             android:textColor="@color/gray"
             android:textSize="@dimen/player_text_medium"
             tools:text="The Beatles"
-            app:layout_constraintStart_toStartOf="@id/leftGuideline"
-            app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+            app:layout_constraintStart_toStartOf="@id/iv_cover"
+            app:layout_constraintEnd_toEndOf="@id/iv_cover"
             app:layout_constraintTop_toBottomOf="@id/tv_track_name" />
 
-        <!-- Кнопка «Добавить в плейлист» (слева от Play, выровнена по центру) -->
+        <!-- Кнопка «Добавить в плейлист» -->
         <ImageView
             android:id="@+id/btn_playlist"
             android:layout_width="@dimen/player_secondary_size"
@@ -110,7 +111,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_artist_name" />
 
-        <!-- Кнопка «Избранное» (справа от Play, выровнена по центру) -->
+        <!-- Кнопка «Избранное» -->
         <ImageView
             android:id="@+id/btn_favorite"
             android:layout_width="@dimen/player_secondary_size"

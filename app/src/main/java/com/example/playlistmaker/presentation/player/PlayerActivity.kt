@@ -103,7 +103,7 @@ class PlayerActivity : AppCompatActivity() {
         binding.tvTrackName.text = track.trackName.orEmpty()
         binding.tvArtistName.text = track.artistName.orEmpty()
 
-
+        // Полная длительность трека (справа в строке "Длительность")
         binding.valueDuration.text = formatDuration(track.trackTimeMillis)
 
         // Прогресс начинается с 00:00
@@ -125,7 +125,7 @@ class PlayerActivity : AppCompatActivity() {
 
         binding.valueCountry.text = track.country.orEmpty()
         binding.labelCountry.isVisible = !track.country.isNullOrEmpty()
-        binding.valueCountry.isVisible = !track.country.isNullOrEmpty()
+        binding.labelCountry.isVisible = !track.country.isNullOrEmpty()
 
         Glide.with(this)
             .load(track.getCoverArtwork())
@@ -135,7 +135,7 @@ class PlayerActivity : AppCompatActivity() {
             .into(binding.ivCover)
     }
 
-
+    // Ручное форматирование миллисекунд в mm:ss
     private fun formatDuration(millis: Long?): String {
         if (millis == null || millis <= 0) return "00:00"
         val totalSeconds = millis / 1000

@@ -15,9 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.playlistmaker.App
 import com.example.playlistmaker.R
-import com.example.playlistmaker.data.local.SearchHistory
 import com.example.playlistmaker.databinding.ActivitySearchBinding
 import com.example.playlistmaker.di.Creator
 import com.example.playlistmaker.domain.api.SearchInteractor
@@ -27,8 +25,9 @@ import com.example.playlistmaker.presentation.player.PlayerActivity
 class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
 
     private lateinit var binding: ActivitySearchBinding
-    private lateinit var searchHistory: SearchHistory
-    private val searchInteractor: SearchInteractor = Creator.provideSearchInteractor()
+    private val searchInteractor: SearchInteractor by lazy {
+        Creator.provideSearchInteractor(this)
+    }
 
     private var searchQuery = ""
     private var isClickAllowed = true
@@ -68,8 +67,6 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
         theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
         binding.toolbar.navigationIcon?.setTint(typedValue.data)
 
-        searchHistory = SearchHistory(getSharedPreferences(App.PREFS_NAME, MODE_PRIVATE))
-
         setupRecyclerView()
         setupHistoryRecyclerView()
         setupSearchEditText()
@@ -78,14 +75,14 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
 
         adapter.onItemClickListener = { track ->
             if (clickDebounce()) {
-                searchHistory.add(track)
+                searchInteractor.addToHistory(track)
                 openPlayer(track)
             }
         }
 
         historyAdapter.onItemClickListener = { track ->
             if (clickDebounce()) {
-                searchHistory.add(track)
+                searchInteractor.addToHistory(track)
                 updateHistoryVisibility()
                 openPlayer(track)
             }
@@ -106,9 +103,7 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
         handler.removeCallbacks(searchRunnable)
     }
 
-    // Реализация интерфейса SearchConsumer
     override fun consume(tracks: List<Track>) {
-        // Переключаемся в главный (UI) поток для обновления интерфейса
         runOnUiThread {
             binding.progressBar.visibility = View.GONE
 
@@ -181,7 +176,7 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
     }
 
     private fun updateHistoryVisibility() {
-        val history = searchHistory.read()
+        val history = searchInteractor.getHistory()
         val show = binding.etSearch.text.isEmpty() && binding.etSearch.hasFocus() && history.isNotEmpty()
         if (show) {
             historyAdapter.updateData(history)
@@ -211,7 +206,7 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
 
     private fun setupClearHistoryButton() {
         binding.btnClearHistory.setOnClickListener {
-            searchHistory.clear()
+            searchInteractor.clearHistory()
             historyAdapter.updateData(emptyList())
             binding.historyContainer.visibility = View.GONE
         }

@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.playlistmaker.R
+import com.example.playlistmaker.data.local.SettingsRepositoryImpl
 import com.example.playlistmaker.databinding.ActivitySettingsBinding
 import com.example.playlistmaker.di.Creator
 import com.example.playlistmaker.domain.api.SettingsInteractor
@@ -57,19 +58,21 @@ class SettingsActivity : AppCompatActivity() {
         val popup = PopupMenu(this, anchor)
         popup.menuInflater.inflate(R.menu.menu_theme, popup.menu)
 
-        // Отмечаем текущую тему
         val currentTheme = settingsInteractor.getThemeMode()
         when (currentTheme) {
-            "Светлая" -> popup.menu.findItem(R.id.menu_theme_light).isChecked = true
-            "Тёмная" -> popup.menu.findItem(R.id.menu_theme_dark).isChecked = true
-            else -> popup.menu.findItem(R.id.menu_theme_system).isChecked = true
+            SettingsRepositoryImpl.THEME_LIGHT ->
+                popup.menu.findItem(R.id.menu_theme_light).isChecked = true
+            SettingsRepositoryImpl.THEME_DARK ->
+                popup.menu.findItem(R.id.menu_theme_dark).isChecked = true
+            else ->
+                popup.menu.findItem(R.id.menu_theme_system).isChecked = true
         }
 
         popup.setOnMenuItemClickListener { menuItem ->
             val newTheme = when (menuItem.itemId) {
-                R.id.menu_theme_light -> "Светлая"
-                R.id.menu_theme_dark -> "Тёмная"
-                else -> "Системная"
+                R.id.menu_theme_light -> SettingsRepositoryImpl.THEME_LIGHT
+                R.id.menu_theme_dark -> SettingsRepositoryImpl.THEME_DARK
+                else -> SettingsRepositoryImpl.THEME_SYSTEM
             }
 
             if (newTheme != currentTheme) {
@@ -114,9 +117,12 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun applyTheme(themeMode: String) {
         when (themeMode) {
-            "Светлая" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            "Тёмная" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            SettingsRepositoryImpl.THEME_LIGHT ->
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            SettingsRepositoryImpl.THEME_DARK ->
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            else ->
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         }
     }
 }

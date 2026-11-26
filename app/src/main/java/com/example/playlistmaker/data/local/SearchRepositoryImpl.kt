@@ -7,8 +7,10 @@ import com.example.playlistmaker.domain.api.SearchRepository
 import com.example.playlistmaker.domain.models.Track
 
 class SearchRepositoryImpl(
-    private val networkClient: NetworkClient
+    private val networkClient: NetworkClient,
+    private val searchHistory: SearchHistory
 ) : SearchRepository {
+
     override fun searchTracks(expression: String): List<Track> {
         val response = networkClient.doRequest(SearchRequest(expression))
 
@@ -30,4 +32,10 @@ class SearchRepositoryImpl(
         }
         return emptyList()
     }
+
+    override fun getHistory(): List<Track> = searchHistory.read()
+
+    override fun addToHistory(track: Track) = searchHistory.add(track)
+
+    override fun clearHistory() = searchHistory.clear()
 }
