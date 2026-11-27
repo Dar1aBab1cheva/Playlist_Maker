@@ -1,4 +1,4 @@
-package com.example.playlistmaker.models
+package com.example.playlistmaker.domain.models
 
 import java.io.Serializable
 
@@ -12,10 +12,9 @@ data class Track(
     val releaseDate: String?,
     val primaryGenreName: String?,
     val country: String?,
-    val previewUrl: String? // <-- НОВОЕ ПОЛЕ для 14 спринта
+    val previewUrl: String?
 ) : Serializable {
 
-    // Обложка в высоком качестве для плеера
     fun getCoverArtwork(): String? =
         artworkUrl100?.replaceAfterLast('/', "512x512bb.jpg")
 }

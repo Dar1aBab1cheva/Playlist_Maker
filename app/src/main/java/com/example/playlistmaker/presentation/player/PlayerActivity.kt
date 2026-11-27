@@ -1,4 +1,4 @@
-package com.example.playlistmaker.ui
+package com.example.playlistmaker.presentation.player
 
 import android.content.res.Configuration
 import android.media.MediaPlayer
@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -15,8 +14,7 @@ import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityPlayerBinding
-import com.example.playlistmaker.models.Track
-import java.text.SimpleDateFormat
+import com.example.playlistmaker.domain.models.Track
 import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
@@ -31,10 +29,8 @@ class PlayerActivity : AppCompatActivity() {
     private val updateProgressRunnable = object : Runnable {
         override fun run() {
             val currentPosition = mediaPlayer?.currentPosition ?: 0
-            val formattedTime =
-                SimpleDateFormat("mm:ss", Locale.getDefault()).format(currentPosition.toLong())
-            binding.tvProgress.text = formattedTime
-            mainThreadHandler.postDelayed(this, PROGRESS_UPDATE_DELAY)
+            binding.tvProgress.text = formatDuration(currentPosition.toLong())
+            mainThreadHandler.postDelayed(this, 500)
         }
     }
 
@@ -45,8 +41,6 @@ class PlayerActivity : AppCompatActivity() {
         private const val STATE_PREPARED = 1
         private const val STATE_PLAYING = 2
         private const val STATE_PAUSED = 3
-
-        private const val PROGRESS_UPDATE_DELAY = 500L
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,11 +103,11 @@ class PlayerActivity : AppCompatActivity() {
         binding.tvTrackName.text = track.trackName.orEmpty()
         binding.tvArtistName.text = track.artistName.orEmpty()
 
-        val timeFormatted = track.trackTimeMillis?.let {
-            SimpleDateFormat("mm:ss", Locale.getDefault()).format(it)
-        }.orEmpty()
-        binding.valueDuration.text = timeFormatted   // общая длительность — НЕ меняется
-        binding.tvProgress.text = "00:00"            // прогресс — старт с нуля
+        // Полная длительность трека (справа в строке "Длительность")
+        binding.valueDuration.text = formatDuration(track.trackTimeMillis)
+
+        // Прогресс начинается с 00:00
+        binding.tvProgress.text = "00:00"
 
         binding.valueAlbum.text = track.collectionName.orEmpty()
         binding.labelAlbum.isVisible = !track.collectionName.isNullOrEmpty()
@@ -131,7 +125,7 @@ class PlayerActivity : AppCompatActivity() {
 
         binding.valueCountry.text = track.country.orEmpty()
         binding.labelCountry.isVisible = !track.country.isNullOrEmpty()
-        binding.valueCountry.isVisible = !track.country.isNullOrEmpty()
+        binding.labelCountry.isVisible = !track.country.isNullOrEmpty()
 
         Glide.with(this)
             .load(track.getCoverArtwork())
@@ -139,6 +133,15 @@ class PlayerActivity : AppCompatActivity() {
             .placeholder(R.drawable.ic_player_placeholder)
             .error(R.drawable.ic_player_placeholder)
             .into(binding.ivCover)
+    }
+
+    // Ручное форматирование миллисекунд в mm:ss
+    private fun formatDuration(millis: Long?): String {
+        if (millis == null || millis <= 0) return "00:00"
+        val totalSeconds = millis / 1000
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
     }
 
     private fun preparePlayer() {
@@ -155,9 +158,7 @@ class PlayerActivity : AppCompatActivity() {
                 updatePlayerIcon()
             }
             setOnCompletionListener {
-                // 1. Снимаем таймер ДО сброса текста — иначе Runnable перезапишет 00:00
                 mainThreadHandler.removeCallbacks(updateProgressRunnable)
-                // 2. Возвращаем позицию в начало, чтобы следующий Play был с нуля
                 mediaPlayer?.seekTo(0)
                 playerState = STATE_PREPARED
                 binding.tvProgress.text = "00:00"
