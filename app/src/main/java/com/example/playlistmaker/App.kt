@@ -3,8 +3,8 @@ package com.example.playlistmaker
 import android.app.Application
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.playlistmaker.di.Creator
-import com.example.playlistmaker.domain.models.ThemeMode
+import com.example.playlistmaker.creator.Creator
+import com.example.playlistmaker.settings.domain.model.ThemeMode
 
 class App : Application() {
 
