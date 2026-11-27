@@ -7,20 +7,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
-import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
-import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.databinding.ActivityPlayerBinding
-import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.player.ui.view_model.PlayerState
 import com.example.playlistmaker.player.ui.view_model.PlayerViewModel
+import com.example.playlistmaker.search.domain.models.Track
+import org.koin.androidx.viewmodel.ext.android.getViewModel
+import org.koin.core.parameter.parametersOf
 
 class PlayerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPlayerBinding
-    private lateinit var viewModel: PlayerViewModel
     private var track: Track? = null
+    private var viewModel: PlayerViewModel? = null
 
     companion object {
         const val EXTRA_TRACK = "extra_track"
@@ -50,20 +50,21 @@ class PlayerActivity : AppCompatActivity() {
         )
         binding.ivBack.setColorFilter(typedValue.data)
 
-        if (track != null) {
-            fillTrackData(track!!)
+        val currentTrack = track
+        if (currentTrack != null) {
+            // Инициализация ViewModel через Koin с параметрами
+            viewModel = getViewModel<PlayerViewModel> {
+                parametersOf(currentTrack)
+            }
 
-            viewModel = ViewModelProvider(
-                this,
-                Creator.providePlayerViewModelFactory(track!!)
-            ).get(PlayerViewModel::class.java)
+            fillTrackData(currentTrack)
 
-            viewModel.observePlayerState().observe(this) { state ->
+            viewModel?.observePlayerState()?.observe(this) { state ->
                 render(state)
             }
 
             binding.btnPlay.setOnClickListener {
-                viewModel.onPlayPauseClicked()
+                viewModel?.onPlayPauseClicked()
             }
         } else {
             Toast.makeText(this, "Ошибка: трек не передан", Toast.LENGTH_SHORT).show()
@@ -73,19 +74,14 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        viewModel.onPause()
+        viewModel?.onPause()
     }
 
     private fun render(state: PlayerState) {
-        // Обновляем иконку кнопки Play/Pause
         binding.btnPlay.setImageResource(
             if (state.isPlaying) R.drawable.ic_pause else R.drawable.ic_play
         )
-
-        // Обновляем прогресс
         binding.tvProgress.text = state.progress
-
-        // Обновляем длительность
         binding.valueDuration.text = state.duration
     }
 

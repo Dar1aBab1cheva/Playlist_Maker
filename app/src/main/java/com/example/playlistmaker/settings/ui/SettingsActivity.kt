@@ -8,17 +8,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmaker.R
-import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.databinding.ActivitySettingsBinding
 import com.example.playlistmaker.settings.domain.model.ThemeMode
 import com.example.playlistmaker.settings.ui.view_model.SettingsViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
-    private lateinit var viewModel: SettingsViewModel
+    private val viewModel: SettingsViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,17 +38,10 @@ class SettingsActivity : AppCompatActivity() {
         theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
         binding.toolbar.navigationIcon?.setTint(typedValue.data)
 
-        // Инициализация ViewModel
-        viewModel = ViewModelProvider(
-            this,
-            Creator.provideSettingsViewModelFactory()
-        ).get(SettingsViewModel::class.java)
-
         // Подписка на тему
         viewModel.observeTheme().observe(this) { themeMode ->
             updateThemeUI(themeMode)
         }
-
 
         // Обработчики кликов
         binding.btnTheme.setOnClickListener { view ->

@@ -15,20 +15,19 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.playlistmaker.R
-import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.databinding.ActivitySearchBinding
 import com.example.playlistmaker.player.ui.PlayerActivity
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.view_model.SearchState
 import com.example.playlistmaker.search.ui.view_model.SearchViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchBinding
-    private lateinit var viewModel: SearchViewModel
+    private val viewModel: SearchViewModel by viewModel()
 
     private var searchQuery = ""
     private var isClickAllowed = true
@@ -68,11 +67,6 @@ class SearchActivity : AppCompatActivity() {
         theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
         binding.toolbar.navigationIcon?.setTint(typedValue.data)
 
-        viewModel = ViewModelProvider(
-            this,
-            Creator.provideSearchViewModelFactory()
-        ).get(SearchViewModel::class.java)
-
         setupRecyclerView()
         setupHistoryRecyclerView()
         setupSearchEditText()
@@ -80,14 +74,17 @@ class SearchActivity : AppCompatActivity() {
         setupClearHistoryButton()
         setupRefreshButton()
 
+        // Подписка на состояние поиска
         viewModel.observeSearchState().observe(this) { state ->
             render(state)
         }
 
+        // Подписка на историю
         viewModel.observeHistory().observe(this) { history ->
             renderHistory(history)
         }
 
+        // Подписка на Toast
         viewModel.observeShowToast().observe(this) { message ->
             Toast.makeText(this, message, Toast.LENGTH_LONG).show()
         }
