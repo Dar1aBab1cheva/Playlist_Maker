@@ -1,4 +1,12 @@
 package com.example.playlistmaker.sharing.domain
 
-class SharingInteractorImpl {
+import com.example.playlistmaker.sharing.data.ExternalNavigator
+
+class SharingInteractorImpl(
+    private val externalNavigator: ExternalNavigator
+) : SharingInteractor {
+
+    override fun shareApp() = externalNavigator.shareApp()
+    override fun openSupport() = externalNavigator.openSupport()
+    override fun openAgreement() = externalNavigator.openAgreement()
 }

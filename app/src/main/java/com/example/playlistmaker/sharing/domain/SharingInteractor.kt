@@ -1,4 +1,7 @@
 package com.example.playlistmaker.sharing.domain
 
-class SharingInteractor {
+interface SharingInteractor {
+    fun shareApp()
+    fun openSupport()
+    fun openAgreement()
 }

@@ -1,5 +1,6 @@
 package com.example.playlistmaker.search.ui
 
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -10,23 +11,24 @@ import android.text.TextWatcher
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.playlistmaker.R
-import com.example.playlistmaker.databinding.ActivitySearchBinding
 import com.example.playlistmaker.creator.Creator
-import com.example.playlistmaker.search.domain.api.SearchInteractor
-import com.example.playlistmaker.search.domain.models.Track
+import com.example.playlistmaker.databinding.ActivitySearchBinding
 import com.example.playlistmaker.player.ui.PlayerActivity
+import com.example.playlistmaker.search.domain.models.Track
+import com.example.playlistmaker.search.ui.view_model.SearchState
+import com.example.playlistmaker.search.ui.view_model.SearchViewModel
 
-class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
+class SearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchBinding
-    private val searchInteractor: SearchInteractor by lazy {
-        Creator.provideSearchInteractor()
-    }
+    private lateinit var viewModel: SearchViewModel
 
     private var searchQuery = ""
     private var isClickAllowed = true
@@ -37,7 +39,7 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
     private val handler = Handler(Looper.getMainLooper())
     private val searchRunnable = Runnable {
         if (binding.etSearch.text.toString().trim().isNotEmpty()) {
-            searchInteractor.searchTracks(binding.etSearch.text.toString().trim(), this)
+            viewModel.searchTracks(binding.etSearch.text.toString().trim())
         }
     }
 
@@ -66,6 +68,11 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
         theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
         binding.toolbar.navigationIcon?.setTint(typedValue.data)
 
+        viewModel = ViewModelProvider(
+            this,
+            Creator.provideSearchViewModelFactory()
+        ).get(SearchViewModel::class.java)
+
         setupRecyclerView()
         setupHistoryRecyclerView()
         setupSearchEditText()
@@ -73,29 +80,38 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
         setupClearHistoryButton()
         setupRefreshButton()
 
+        viewModel.observeSearchState().observe(this) { state ->
+            render(state)
+        }
+
+        viewModel.observeHistory().observe(this) { history ->
+            renderHistory(history)
+        }
+
+        viewModel.observeShowToast().observe(this) { message ->
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        }
+
         adapter.onItemClickListener = { track ->
             if (clickDebounce()) {
-                searchInteractor.addToHistory(track)
+                viewModel.addToHistory(track)
                 openPlayer(track)
             }
         }
 
         historyAdapter.onItemClickListener = { track ->
             if (clickDebounce()) {
-                searchInteractor.addToHistory(track)
-                updateHistoryVisibility()
+                viewModel.addToHistory(track)
                 openPlayer(track)
             }
         }
 
         binding.etSearch.requestFocus()
-        updateHistoryVisibility()
     }
 
     override fun onResume() {
         super.onResume()
         updatePlaceholderImages()
-        updateHistoryVisibility()
     }
 
     override fun onDestroy() {
@@ -103,23 +119,26 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
         handler.removeCallbacks(searchRunnable)
     }
 
-    override fun consume(tracks: List<Track>) {
-        runOnUiThread {
-            binding.progressBar.visibility = View.GONE
-
-            if (tracks.isEmpty()) {
-                showNoResults()
-            } else {
-                adapter.updateData(tracks)
-                showList()
-            }
+    private fun render(state: SearchState) {
+        when (state) {
+            is SearchState.Loading -> showLoading()
+            is SearchState.Content -> showContent(state.tracks)
+            is SearchState.Error -> showError()
+            is SearchState.Empty -> showEmpty()
         }
     }
 
-    override fun consumeError() {
-        runOnUiThread {
+    private fun renderHistory(history: List<Track>) {
+        val show = binding.etSearch.text.isEmpty() && binding.etSearch.hasFocus() && history.isNotEmpty()
+        if (show) {
+            historyAdapter.updateData(history)
+            binding.historyContainer.visibility = View.VISIBLE
+            binding.recyclerViewTracks.visibility = View.GONE
+            binding.placeholderNoResults.visibility = View.GONE
+            binding.placeholderError.visibility = View.GONE
             binding.progressBar.visibility = View.GONE
-            showError()
+        } else {
+            binding.historyContainer.visibility = View.GONE
         }
     }
 
@@ -167,7 +186,6 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
                     binding.placeholderError.visibility = View.GONE
                     binding.progressBar.visibility = View.GONE
                 }
-                updateHistoryVisibility()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -178,7 +196,7 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
             if (searchQuery.isNotEmpty()) {
                 binding.progressBar.visibility = View.VISIBLE
                 binding.placeholderError.visibility = View.GONE
-                searchInteractor.searchTracks(searchQuery, this)
+                viewModel.searchTracks(searchQuery)
             }
         }
     }
@@ -192,24 +210,10 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
         return current
     }
 
-    private fun updateHistoryVisibility() {
-        val history = searchInteractor.getHistory()
-        val show = binding.etSearch.text.isEmpty() && binding.etSearch.hasFocus() && history.isNotEmpty()
-        if (show) {
-            historyAdapter.updateData(history)
-            binding.historyContainer.visibility = View.VISIBLE
-            binding.recyclerViewTracks.visibility = View.GONE
-            binding.placeholderNoResults.visibility = View.GONE
-            binding.placeholderError.visibility = View.GONE
-            binding.progressBar.visibility = View.GONE
-        } else {
-            binding.historyContainer.visibility = View.GONE
-        }
-    }
-
     private fun setupClearButton() {
         binding.ivClearSearch.setOnClickListener {
             binding.etSearch.text.clear()
+            binding.etSearch.requestFocus()
             hideKeyboard(binding.etSearch)
             handler.removeCallbacks(searchRunnable)
             adapter.updateData(emptyList())
@@ -217,32 +221,52 @@ class SearchActivity : AppCompatActivity(), SearchInteractor.SearchConsumer {
             binding.placeholderNoResults.visibility = View.GONE
             binding.placeholderError.visibility = View.GONE
             binding.progressBar.visibility = View.GONE
-            updateHistoryVisibility()
         }
     }
 
     private fun setupClearHistoryButton() {
         binding.btnClearHistory.setOnClickListener {
-            searchInteractor.clearHistory()
+            viewModel.clearHistory()
             historyAdapter.updateData(emptyList())
             binding.historyContainer.visibility = View.GONE
         }
     }
 
-    private fun showList() {
-        binding.recyclerViewTracks.visibility = View.VISIBLE
+    private fun showLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.recyclerViewTracks.visibility = View.GONE
+        binding.placeholderNoResults.visibility = View.GONE
+        binding.placeholderError.visibility = View.GONE
+        binding.historyContainer.visibility = View.GONE
     }
 
-    private fun showNoResults() {
-        binding.placeholderNoResults.visibility = View.VISIBLE
+    private fun showContent(tracks: List<Track>) {
+        binding.progressBar.visibility = View.GONE
+        adapter.updateData(tracks)
+        binding.recyclerViewTracks.visibility = View.VISIBLE
+        binding.placeholderNoResults.visibility = View.GONE
+        binding.placeholderError.visibility = View.GONE
+        binding.historyContainer.visibility = View.GONE
     }
 
     private fun showError() {
+        binding.progressBar.visibility = View.GONE
+        binding.recyclerViewTracks.visibility = View.GONE
+        binding.placeholderNoResults.visibility = View.GONE
         binding.placeholderError.visibility = View.VISIBLE
+        binding.historyContainer.visibility = View.GONE
+    }
+
+    private fun showEmpty() {
+        binding.progressBar.visibility = View.GONE
+        binding.recyclerViewTracks.visibility = View.GONE
+        binding.placeholderNoResults.visibility = View.VISIBLE
+        binding.placeholderError.visibility = View.GONE
+        binding.historyContainer.visibility = View.GONE
     }
 
     private fun hideKeyboard(view: View) {
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 

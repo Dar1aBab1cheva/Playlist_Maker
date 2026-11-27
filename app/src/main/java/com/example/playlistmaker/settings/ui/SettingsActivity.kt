@@ -1,7 +1,5 @@
 package com.example.playlistmaker.settings.ui
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
@@ -10,18 +8,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
+import com.example.playlistmaker.R
 import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.databinding.ActivitySettingsBinding
-import com.example.playlistmaker.settings.domain.SettingsInteractor
 import com.example.playlistmaker.settings.domain.model.ThemeMode
-import com.google.android.material.R
+import com.example.playlistmaker.settings.ui.view_model.SettingsViewModel
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
-    private val settingsInteractor: SettingsInteractor by lazy {
-        Creator.provideSettingsInteractor()
-    }
+    private lateinit var viewModel: SettingsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,80 +36,64 @@ class SettingsActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener { finish() }
 
         val typedValue = TypedValue()
-        theme.resolveAttribute(R.attr.colorOnSurface, typedValue, true)
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
         binding.toolbar.navigationIcon?.setTint(typedValue.data)
 
-        setupThemeButton()
-        setupShareButton()
-        setupSupportButton()
-        setupAgreementButton()
-    }
+        // Инициализация ViewModel
+        viewModel = ViewModelProvider(
+            this,
+            Creator.provideSettingsViewModelFactory()
+        ).get(SettingsViewModel::class.java)
 
-    private fun setupThemeButton() {
+        // Подписка на тему
+        viewModel.observeTheme().observe(this) { themeMode ->
+            updateThemeUI(themeMode)
+        }
+
+
+        // Обработчики кликов
         binding.btnTheme.setOnClickListener { view ->
             showThemePopupMenu(view)
+        }
+
+        binding.btnShare.setOnClickListener {
+            viewModel.onShareAppClicked()
+        }
+
+        binding.btnSupport.setOnClickListener {
+            viewModel.onSupportClicked()
+        }
+
+        binding.btnAgreement.setOnClickListener {
+            viewModel.onAgreementClicked()
         }
     }
 
     private fun showThemePopupMenu(anchor: View) {
         val popup = PopupMenu(this, anchor)
-        popup.menuInflater.inflate(com.example.playlistmaker.R.menu.menu_theme, popup.menu)
+        popup.menuInflater.inflate(R.menu.menu_theme, popup.menu)
 
-        val currentTheme = settingsInteractor.getThemeMode()
+        val currentTheme = viewModel.observeTheme().value
         when (currentTheme) {
-            ThemeMode.LIGHT -> popup.menu.findItem(com.example.playlistmaker.R.id.menu_theme_light).isChecked = true
-            ThemeMode.DARK -> popup.menu.findItem(com.example.playlistmaker.R.id.menu_theme_dark).isChecked = true
-            else -> popup.menu.findItem(com.example.playlistmaker.R.id.menu_theme_system).isChecked = true
+            ThemeMode.LIGHT -> popup.menu.findItem(R.id.menu_theme_light).isChecked = true
+            ThemeMode.DARK -> popup.menu.findItem(R.id.menu_theme_dark).isChecked = true
+            else -> popup.menu.findItem(R.id.menu_theme_system).isChecked = true
         }
 
         popup.setOnMenuItemClickListener { menuItem ->
             val newTheme = when (menuItem.itemId) {
-                com.example.playlistmaker.R.id.menu_theme_light -> ThemeMode.LIGHT
-                com.example.playlistmaker.R.id.menu_theme_dark -> ThemeMode.DARK
+                R.id.menu_theme_light -> ThemeMode.LIGHT
+                R.id.menu_theme_dark -> ThemeMode.DARK
                 else -> ThemeMode.SYSTEM
             }
-
-            if (newTheme != currentTheme) {
-                settingsInteractor.saveThemeMode(newTheme)
-                applyTheme(newTheme)
-            }
+            viewModel.onThemeSelected(newTheme)
             true
         }
 
         popup.show()
     }
 
-    private fun setupShareButton() {
-        binding.btnShare.setOnClickListener {
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, getString(com.example.playlistmaker.R.string.share_message))
-            }
-            startActivity(Intent.createChooser(shareIntent, getString(com.example.playlistmaker.R.string.setting_share)))
-        }
-    }
-
-    private fun setupSupportButton() {
-        binding.btnSupport.setOnClickListener {
-            val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
-                data = Uri.parse("mailto:")
-                putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(com.example.playlistmaker.R.string.support_email)))
-                putExtra(Intent.EXTRA_SUBJECT, getString(com.example.playlistmaker.R.string.email_subject))
-                putExtra(Intent.EXTRA_TEXT, getString(com.example.playlistmaker.R.string.email_body))
-            }
-            startActivity(Intent.createChooser(emailIntent, getString(com.example.playlistmaker.R.string.setting_support)))
-        }
-    }
-
-    private fun setupAgreementButton() {
-        binding.btnAgreement.setOnClickListener {
-            val url = getString(com.example.playlistmaker.R.string.agreement_link)
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            startActivity(intent)
-        }
-    }
-
-    private fun applyTheme(themeMode: String) {
+    private fun updateThemeUI(themeMode: String) {
         when (themeMode) {
             ThemeMode.LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             ThemeMode.DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
