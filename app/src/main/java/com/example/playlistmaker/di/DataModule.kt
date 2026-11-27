@@ -2,8 +2,6 @@ package com.example.playlistmaker.di
 
 import android.media.MediaPlayer
 import com.example.playlistmaker.App
-import com.example.playlistmaker.player.data.PlayerInteractorImpl
-import com.example.playlistmaker.player.domain.api.PlayerInteractor
 import com.example.playlistmaker.search.data.local.SearchHistory
 import com.example.playlistmaker.search.data.local.SearchRepositoryImpl
 import com.example.playlistmaker.search.data.network.ITunesApi
@@ -21,15 +19,15 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 val dataModule = module {
 
-    // SharedPreferences
+    // SharedPreferences — single (тяжёлый объект, один на всё приложение)
     single {
         androidContext().getSharedPreferences(App.PREFS_NAME, android.content.Context.MODE_PRIVATE)
     }
 
-    // Gson
-    single { Gson() }
+    // Gson — factory (лёгкий объект)
+    factory { Gson() }
 
-    // Retrofit
+    // Retrofit — single (тяжёлый объект, один на всё приложение)
     single {
         Retrofit.Builder()
             .baseUrl("https://itunes.apple.com")
@@ -37,41 +35,36 @@ val dataModule = module {
             .build()
     }
 
-    // ITunesApi
+    // ITunesApi — single (создаётся из Retrofit, один на приложение)
     single {
         get<Retrofit>().create(ITunesApi::class.java)
     }
 
-    // MediaPlayer
+    // MediaPlayer — factory (новый экземпляр для каждого плеера)
     factory { MediaPlayer() }
 
-    // NetworkClient
-    single<NetworkClient> {
+    // NetworkClient — factory (лёгкий, не хранит состояние)
+    factory<NetworkClient> {
         RetrofitNetworkClient(get())
     }
 
-    // SearchHistory
-    single {
+    // SearchHistory — factory (лёгкий, не хранит состояние)
+    factory {
         SearchHistory(get(), get())
     }
 
-    // SearchRepository
-    single<SearchRepository> {
+    // SearchRepository — factory (не хранит состояние, создаётся по требованию)
+    factory<SearchRepository> {
         SearchRepositoryImpl(get(), get())
     }
 
-    // SettingsRepository
-    single<SettingsRepository> {
+    // SettingsRepository — factory (не хранит состояние)
+    factory<SettingsRepository> {
         SettingsRepositoryImpl(get())
     }
 
-    // ExternalNavigator
-    single {
+    // ExternalNavigator — factory (лёгкий)
+    factory {
         ExternalNavigator(androidContext())
-    }
-
-    // PlayerInteractor
-    factory<PlayerInteractor> {
-        PlayerInteractorImpl(get())
     }
 }
