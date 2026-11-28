@@ -1,35 +1,25 @@
 package com.example.playlistmaker.player.ui.view_model
 
-import android.media.MediaPlayer
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.playlistmaker.player.domain.api.PlayerInteractor
 import com.example.playlistmaker.search.domain.models.Track
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 class PlayerViewModel(
-    private val track: Track
+    private val track: Track,
+    private val playerInteractor: PlayerInteractor
 ) : ViewModel() {
 
     private val playerStateLiveData = MutableLiveData<PlayerState>()
     fun observePlayerState(): LiveData<PlayerState> = playerStateLiveData
 
-    private var mediaPlayer: MediaPlayer? = null
-    private val handler = Handler(Looper.getMainLooper())
-    private val updateProgressRunnable = object : Runnable {
-        override fun run() {
-            val currentPosition = mediaPlayer?.currentPosition ?: 0
-            val currentState = playerStateLiveData.value ?: PlayerState()
-            if (currentState.isPlaying) {
-                playerStateLiveData.postValue(
-                    currentState.copy(progress = formatDuration(currentPosition.toLong()))
-                )
-                handler.postDelayed(this, 500)
-            }
-        }
-    }
+    private var progressJob: kotlinx.coroutines.Job? = null
 
     init {
         val duration = formatDuration(track.trackTimeMillis)
@@ -41,19 +31,19 @@ class PlayerViewModel(
         val url = track.previewUrl
         if (url.isNullOrEmpty()) return
 
-        mediaPlayer = MediaPlayer().apply {
-            setDataSource(url)
-            setOnPreparedListener {
-                val currentState = playerStateLiveData.value ?: PlayerState()
-                playerStateLiveData.postValue(currentState.copy(isPrepared = true))
-            }
-            setOnCompletionListener {
-                val currentState = playerStateLiveData.value ?: PlayerState()
-                playerStateLiveData.postValue(
-                    currentState.copy(isPlaying = false, progress = "00:00")
-                )
-            }
-            prepareAsync()
+        playerInteractor.prepare(url)
+
+        playerInteractor.setOnPreparedListener {
+            val currentState = playerStateLiveData.value ?: PlayerState()
+            playerStateLiveData.postValue(currentState.copy(isPrepared = true))
+        }
+
+        playerInteractor.setOnCompletionListener {
+            val currentState = playerStateLiveData.value ?: PlayerState()
+            playerStateLiveData.postValue(
+                currentState.copy(isPlaying = false, progress = "00:00")
+            )
+            stopProgressUpdates()
         }
     }
 
@@ -76,17 +66,38 @@ class PlayerViewModel(
     }
 
     private fun startPlayer() {
-        mediaPlayer?.start()
+        playerInteractor.start()
         val currentState = playerStateLiveData.value ?: PlayerState()
         playerStateLiveData.postValue(currentState.copy(isPlaying = true))
-        handler.post(updateProgressRunnable)
+        startProgressUpdates()
     }
 
     private fun pausePlayer() {
-        mediaPlayer?.pause()
+        playerInteractor.pause()
         val currentState = playerStateLiveData.value ?: PlayerState()
         playerStateLiveData.postValue(currentState.copy(isPlaying = false))
-        handler.removeCallbacks(updateProgressRunnable)
+        stopProgressUpdates()
+    }
+
+    private fun startProgressUpdates() {
+        progressJob?.cancel()
+        progressJob = viewModelScope.launch {
+            while (isActive) {
+                val currentPosition = playerInteractor.getCurrentPosition()
+                val currentState = playerStateLiveData.value ?: PlayerState()
+                if (currentState.isPlaying) {
+                    playerStateLiveData.postValue(
+                        currentState.copy(progress = formatDuration(currentPosition.toLong()))
+                    )
+                }
+                delay(500)
+            }
+        }
+    }
+
+    private fun stopProgressUpdates() {
+        progressJob?.cancel()
+        progressJob = null
     }
 
     private fun formatDuration(millis: Long?): String {
@@ -99,8 +110,7 @@ class PlayerViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        handler.removeCallbacks(updateProgressRunnable)
-        mediaPlayer?.release()
-        mediaPlayer = null
+        stopProgressUpdates()
+        playerInteractor.release()
     }
 }

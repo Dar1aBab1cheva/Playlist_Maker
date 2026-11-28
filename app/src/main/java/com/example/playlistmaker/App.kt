@@ -1,36 +1,31 @@
 package com.example.playlistmaker
 
 import android.app.Application
-import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.playlistmaker.creator.Creator
+import com.example.playlistmaker.di.dataModule
+import com.example.playlistmaker.di.interactorModule
+import com.example.playlistmaker.di.viewModelModule
+import com.example.playlistmaker.settings.domain.SettingsInteractor
 import com.example.playlistmaker.settings.domain.model.ThemeMode
+import org.koin.android.ext.android.inject
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
 
 class App : Application() {
 
+    private val settingsInteractor: SettingsInteractor by inject()
+
     override fun onCreate() {
         super.onCreate()
-        Creator.init(this)  // <-- Сохраняем Application в Creator
 
-        migrateOldTheme()
-
-        val themeMode = Creator.provideSettingsInteractor().getThemeMode()
-        applyTheme(themeMode)
-    }
-
-    private fun migrateOldTheme() {
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val newThemeKey = "theme_key"
-        val oldThemeKey = "dark_theme_key"
-
-        if (!prefs.contains(newThemeKey) && prefs.contains(oldThemeKey)) {
-            val wasDark = prefs.getBoolean(oldThemeKey, false)
-            val newTheme = if (wasDark) ThemeMode.DARK else ThemeMode.LIGHT
-            prefs.edit()
-                .putString(newThemeKey, newTheme)
-                .remove(oldThemeKey)
-                .apply()
+        // Инициализация Koin
+        startKoin {
+            androidContext(this@App)
+            modules(dataModule, interactorModule, viewModelModule)
         }
+
+        val themeMode = settingsInteractor.getThemeMode()
+        applyTheme(themeMode)
     }
 
     private fun applyTheme(themeMode: String) {
